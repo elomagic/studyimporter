@@ -1,0 +1,34 @@
+/*
+ * @NOTE: Prepend a `~` to css file paths that are in your node_modules
+ *        See https://github.com/webpack-contrib/sass-loader#imports
+ */
+body {
+  position: relative;
+  height: 100vh;
+  background: rgb(0,0,0);
+
+  /*
+  color: white;
+  background: rgb(0,0,0);
+  background: linear-gradient(58deg, rgba(0,0,0,1) 0%, rgba(29,29,29,1) 23%, rgba(101,101,101,1) 100%);
+  font-family: sans-serif;
+   */
+  overflow-y: hidden;
+  display: flex;
+  /*
+  justify-content: center;
+  align-items: center;
+   */
+  margin: 0;
+}
+
+body > div {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+}
+
+/* Carsten 20.03.2024. Fix otherwise tooltip will always set left aligned */
+.MuiTooltip-popper {
+  width: fit-content;
+}

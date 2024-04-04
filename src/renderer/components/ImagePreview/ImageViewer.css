@@ -1,0 +1,40 @@
+
+.ImageViewer-top-left {
+  font-size: 14px;
+  position: absolute;
+  text-align: left;
+}
+
+/* Top right text */
+.ImageViewer-top-right {
+  font-size: 14px;
+  position: absolute;
+  right: 60px;
+  text-align: right;
+}
+
+/* Bottom left text */
+.ImageViewer-bottom-left {
+  font-size: 14px;
+  position: relative;
+  bottom: 30px;
+  left: 1px;
+  text-align: left;
+}
+/* Bottom right text */
+.ImageViewer-bottom-right {
+  font-size: 14px;
+  position: relative;
+  bottom: 30px;
+  right: 60px;
+  text-align: right;
+}
+
+/* Centered text */
+.ImageViewer-centered {
+  font-size: 14px;
+  position: relative;
+  top: -50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
