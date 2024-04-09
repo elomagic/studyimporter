@@ -12,7 +12,9 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "outDir": ".erb/dll"
+    "outDir": ".erb/dll",
+    // Next line added by Carsten on 2024-04-09
+    "skipLibCheck": true
   },
   "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"]
 }
