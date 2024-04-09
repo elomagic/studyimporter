@@ -18,8 +18,8 @@ function createImage(image: any, imageId: string) {
   const rows = image.naturalHeight;
   const columns = image.naturalWidth;
 
-  function getPixelData(targetBuffer) {
-    const imageData = getImageData();
+  function getPixelData(targetBuffer: any) {
+    const imageData: ImageData | null = getImageData();
 
     let targetArray;
 
@@ -31,7 +31,7 @@ function createImage(image: any, imageId: string) {
         targetBuffer.length,
       );
     } else {
-      targetArray = new Uint8Array(imageData.width * imageData.height * 3);
+      targetArray = new Uint8Array(imageData === null ? 0 : imageData.width * imageData.height * 3);
     }
 
     // modify original image data and remove alpha channel (RGBA to RGB)
@@ -40,7 +40,7 @@ function createImage(image: any, imageId: string) {
     return targetArray;
   }
 
-  function convertImageDataToRGB(imageData, targetArray) {
+  function convertImageDataToRGB(imageData: any, targetArray: Uint8Array) {
     for (let i = 0, j = 0; i < imageData.data.length; i += 4, j += 3) {
       targetArray[j] = imageData.data[i];
       targetArray[j + 1] = imageData.data[i + 1];
@@ -48,7 +48,7 @@ function createImage(image: any, imageId: string) {
     }
   }
 
-  function getImageData() {
+  function getImageData(): ImageData | null {
     let context;
 
     if (lastImageIdDrawn === imageId) {
@@ -57,11 +57,15 @@ function createImage(image: any, imageId: string) {
       canvas.height = image.naturalHeight;
       canvas.width = image.naturalWidth;
       context = canvas.getContext('2d');
-      context.drawImage(image, 0, 0);
+
+      if (context !== null) {
+        context.drawImage(image, 0, 0);
+      }
+
       lastImageIdDrawn = imageId;
     }
 
-    return context.getImageData(0, 0, image.naturalWidth, image.naturalHeight);
+    return context === null ? null : context.getImageData(0, 0, image.naturalWidth, image.naturalHeight);
   }
 
   function getCanvas() {
@@ -72,6 +76,10 @@ function createImage(image: any, imageId: string) {
     canvas.height = image.naturalHeight;
     canvas.width = image.naturalWidth;
     const context = canvas.getContext('2d');
+
+    if (context === null) {
+      return canvas;
+    }
 
     context.drawImage(image, 0, 0);
     lastImageIdDrawn = imageId;
@@ -105,7 +113,7 @@ function createImage(image: any, imageId: string) {
   };
 }
 
-function arrayBufferToImage(arrayBuffer) {
+function arrayBufferToImage(arrayBuffer: any) {
   return new Promise((resolve, reject) => {
     const image = new Image();
     const arrayBufferView = new Uint8Array(arrayBuffer);
@@ -126,23 +134,12 @@ function arrayBufferToImage(arrayBuffer) {
   });
 }
 
-//
-// This is a cornerstone image loader for web images such as PNG and JPEG
-//
-const options = {
-  // callback allowing customization of the xhr (e.g. adding custom auth headers, cors, etc)
-  beforeSend: (xhr) => {
-    // xhr
-  },
-};
-
 // Loads an image given a url to an image
 function loadImage(uri: string | URL, imageId: string) {
   const xhr = new XMLHttpRequest();
 
   xhr.open('GET', uri, true);
   xhr.responseType = 'arraybuffer';
-  options.beforeSend(xhr);
 
   xhr.onprogress = function (oProgress) {
     if (oProgress.lengthComputable) {
@@ -198,7 +195,7 @@ function loadImage(uri: string | URL, imageId: string) {
   };
 }
 
-function registerWebImageLoader(imageLoader): void {
+function registerWebImageLoader(imageLoader: any): void {
   imageLoader.registerImageLoader('web', _loadImageIntoBuffer);
 }
 
@@ -209,10 +206,10 @@ function registerWebImageLoader(imageLoader): void {
 function _loadImageIntoBuffer(
   imageId: string,
   options?: Record<string, any>,
-): { promise: Promise<Record<string, any>>; cancelFn: () => void } {
+): { promise: Promise<Record<string, any>>; cancelFn: undefined | (() => void) } {
   const uri = imageId.replace('web:', '');
 
-  const promise = new Promise((resolve, reject) => {
+  const promise: Promise<Record<string, any> | any> = new Promise((resolve, reject) => {
     // get the pixel data from the server
     loadImage(uri, imageId)
       .promise.then(

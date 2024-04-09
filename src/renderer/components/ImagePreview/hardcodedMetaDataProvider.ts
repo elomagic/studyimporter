@@ -61,7 +61,6 @@ export default function hardcodedMetaDataProvider(
       rescaleSlope: 1,
       rescaleIntercept: 0,
     };
-  } else {
-    return undefined;
   }
+  return undefined;
 }
