@@ -57,8 +57,8 @@ const StepSelectMediaSource: FunctionComponent<SelectMediaSourceProps> = ({
   const [alertText, setAlertText] = useState<string | undefined>(undefined);
   const [patientCount, setPatientCount] = useState(0);
   const [serieCount, setSerieCount] = useState(0);
-  const [defaultDir1, setDefaultDir1] = useState<string | undefined>('');
-  const [defaultDir2, setDefaultDir2] = useState<string | undefined>('');
+  const [defaultDir1, setDefaultDir1] = useState<string>('');
+  const [defaultDir2, setDefaultDir2] = useState<string>('');
   const [selectedTab, setSelectedTab] = useState(0);
   const [nextDisabled, setNextDisabled] = useState<boolean>(true);
   const [readDisabled, setReadDisabled] = useState(false);
@@ -71,8 +71,8 @@ const StepSelectMediaSource: FunctionComponent<SelectMediaSourceProps> = ({
     window.electron.ipcRenderer
       .getSettings()
       .then((settings: Settings) => {
-        setDefaultDir1(settings.importOptions?.defaultImportPath1);
-        setDefaultDir2(settings.importOptions?.defaultImportPath2);
+        setDefaultDir1(settings.importOptions?.defaultImportPath1 ?? '');
+        setDefaultDir2(settings.importOptions?.defaultImportPath2 ?? '');
 
         switch (settings.importOptions?.lastUsedImportMode) {
           case ImportSource.Path1: {
@@ -108,7 +108,7 @@ const StepSelectMediaSource: FunctionComponent<SelectMediaSourceProps> = ({
       });
   }, []);
 
-  const getSelectedFolder = (): string | undefined => {
+  const getSelectedFolder = (): string => {
     switch (selectedTab) {
       case 0: {
         return defaultDir1;
@@ -117,7 +117,7 @@ const StepSelectMediaSource: FunctionComponent<SelectMediaSourceProps> = ({
         return defaultDir2;
       }
       case 2: {
-        return importFolderRef?.current?.value;
+        return importFolderRef?.current?.value ?? '';
       }
       // case 3: {
       //   setSelectedFolder(importFolderRef?.current?.value);

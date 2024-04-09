@@ -8,13 +8,11 @@ import {
 } from '../shared/shared-types';
 
 export function getFirstValue(doc: Node, xp: string): string {
-  const nodes = xpath.select(xp, doc);
+  const nodes: Array<Node> = xpath.select(xp, doc) as Array<Node>;
 
-  const n: Node[] = nodes;
-
-  return n === null || n.length === 0 || n[0].firstChild === null
+  return nodes === null || nodes.length === 0 || nodes[0].firstChild === null
     ? undefined
-    : n[0].firstChild.data;
+    : nodes[0].firstChild.data;
 }
 
 export function getTagValue(node: Node, tag: string): string {
@@ -76,7 +74,7 @@ export function mapImage(
 
 export const mapDicomDirIntoModel = (
   xml: string,
-  folder: string | undefined,
+  folder: string,
   listener: (
     patientCount: number,
     studyCount: number,
@@ -89,7 +87,7 @@ export const mapDicomDirIntoModel = (
   const nodes: SelectReturnType = xpath.select(
     '/file-format/data-set/sequence/item',
     doc,
-  );
+  ) as Array<Node>;
 
   const patients = new Map<string, DicomPatientMeta>();
   const studies = new Map<string, DicomStudyMeta>();
@@ -106,17 +104,13 @@ export const mapDicomDirIntoModel = (
 
       if (type === 'PATIENT') {
         const patient = mapPatient(node);
-        currentPatient = patients.has(patient.patientID)
-          ? patients.get(patient.patientID)
-          : patient;
+        currentPatient = patients.get(patient.patientID) ?? patient;
         patients.set(currentPatient.patientID, patient);
 
         listener(patients.size, studies.size, series.size);
       } else if (type === 'STUDY') {
         const study = mapStudy(node);
-        currentStudyInstance = studies.has(study.studyInstanceUID)
-          ? studies.get(study.studyInstanceUID)
-          : study;
+        currentStudyInstance = studies.get(study.studyInstanceUID) ?? study;
         study.patient = currentPatient;
         studies.set(
           currentStudyInstance.studyInstanceUID,
@@ -127,9 +121,7 @@ export const mapDicomDirIntoModel = (
       } else if (type === 'SERIES') {
         const serie = mapSeries(node);
         serie.patient = currentPatient;
-        currentSeriesInstance = series.has(serie.seriesInstanceUID)
-          ? series.get(serie.seriesInstanceUID)
-          : serie;
+        currentSeriesInstance = series.get(serie.seriesInstanceUID) ?? serie;
         series.set(
           currentSeriesInstance.seriesInstanceUID,
           currentSeriesInstance,

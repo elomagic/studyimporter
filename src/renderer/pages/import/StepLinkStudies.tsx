@@ -29,6 +29,7 @@ const StepLinkStudies: FunctionComponent<StepLinkStudiesProps> = ({
 
   const handlePatientSelected = (patient: any | undefined) => {
     logger.info('Selected row: %s', patient);
+    // @ts-ignore
     dispatch(setLinkPatient(patient));
   };
 

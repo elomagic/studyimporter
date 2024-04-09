@@ -4,6 +4,7 @@
 import { ChildProcess, ExecException, execFile } from 'child_process';
 import fs from 'fs';
 import yauzl from 'yauzl';
+// @ts-ignore
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import logger from 'electron-log/main';

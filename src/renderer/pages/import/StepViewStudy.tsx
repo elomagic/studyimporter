@@ -40,6 +40,7 @@ const StepViewStudy: FunctionComponent<StepPreviewStudiesProps> = ({
   };
 
   const handleNextStepClick = () => {
+    // @ts-ignore
     dispatch(setSelectedStudies(studiesSelected));
     onNext();
   };

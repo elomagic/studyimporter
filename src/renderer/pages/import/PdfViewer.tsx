@@ -15,6 +15,7 @@ interface PdfViewerProps {
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.js',
+  // @ts-ignore
   import.meta.url,
 ).toString();
 
