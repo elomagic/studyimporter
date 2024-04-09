@@ -7,43 +7,43 @@ import {
   DicomStudyMeta,
 } from '../shared/shared-types';
 
-export function getFirstValue(doc: Node, xp: string): string {
+export function getFirstValue(doc: Node, xp: string): string | undefined {
   const nodes: Array<Node> = xpath.select(xp, doc) as Array<Node>;
 
   return nodes === null || nodes.length === 0 || nodes[0].firstChild === null
     ? undefined
-    : nodes[0].firstChild.data;
+    : nodes[0].firstChild?.nodeValue ?? undefined;
 }
 
-export function getTagValue(node: Node, tag: string): string {
+export function getTagValue(node: Node, tag: string): string | undefined {
   return getFirstValue(node, `element[contains(@tag, '${tag}')]`);
 }
 
 export function mapPatient(node: Node): DicomPatientMeta {
   return {
-    patientID: getTagValue(node, '0010,0020'),
-    patientDisplayName: getTagValue(node, '0010,0010'),
-    patientDayOfBirth: getTagValue(node, '0010,0030'),
-    patientGender: getTagValue(node, '0010,0040'),
+    patientID: getTagValue(node, '0010,0020') ?? '',
+    patientDisplayName: getTagValue(node, '0010,0010') ?? '',
+    patientDayOfBirth: getTagValue(node, '0010,0030') ?? '',
+    patientGender: getTagValue(node, '0010,0040') ?? '',
   };
 }
 
 export function mapStudy(node: Node): DicomStudyMeta {
   return {
-    studyInstanceUID: getTagValue(node, '0020,000d'),
-    studyDescription: getTagValue(node, '0008,1030'),
-    performedDate: getTagValue(node, '0008,0020'),
-    performedTime: getTagValue(node, '0008,0030'),
-    accessionNumber: getTagValue(node, '0008,0050'),
+    studyInstanceUID: getTagValue(node, '0020,000d') ?? '',
+    studyDescription: getTagValue(node, '0008,1030') ?? '',
+    performedDate: getTagValue(node, '0008,0020') ?? '',
+    performedTime: getTagValue(node, '0008,0030') ?? '',
+    accessionNumber: getTagValue(node, '0008,0050') ?? '',
     series: [],
   };
 }
 
 export function mapSeries(node: Node): DicomSeriesMeta {
   return {
-    seriesInstanceUID: getTagValue(node, '0020,000e'),
-    seriesDescription: getTagValue(node, '0008,103e'),
-    modality: getTagValue(node, '0008,0060'),
+    seriesInstanceUID: getTagValue(node, '0020,000e') ?? '',
+    seriesDescription: getTagValue(node, '0008,103e') ?? '',
+    modality: getTagValue(node, '0008,0060') ?? '',
     institutionName: getTagValue(node, '0008,0080'),
     images: [],
     previewImage: undefined,
@@ -56,9 +56,9 @@ export function mapImage(
   studyInstanceUID: string,
   folder: string,
 ): DicomImageMeta {
-  const refFileId = getTagValue(node, '0004,1500');
+  const refFileId = getTagValue(node, '0004,1500') ?? '';
   return {
-    instanceNumber: parseInt(getTagValue(node, '0020,0013'), 10),
+    instanceNumber: parseInt(getTagValue(node, '0020,0013') ?? '0', 10),
     seriesInstanceUID,
     studyInstanceUID,
     manufacturer: getTagValue(node, '0008,0070'),
@@ -68,7 +68,7 @@ export function mapImage(
     // Will crash with the 'path' module
     // fileURL: path.join(folder, refFileId.replaceAll('\\', path.sep)),
     dicomFileURL: folder.concat('/', refFileId.replaceAll('\\', '/')),
-    directoryRecordType: getTagValue(node, '0004,1430'),
+    directoryRecordType: getTagValue(node, '0004,1430') ?? '',
   };
 }
 
