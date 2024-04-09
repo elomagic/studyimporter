@@ -69,7 +69,7 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 
 ## License
 
-GPL-3.0 © [elomagic](https://github.com/elomagic)
+MIT © [elomagic](https://github.com/elomagic)
 
 [github-actions-status]: https://github.com/elomagic/studyimporter/workflows/Test/badge.svg
 [github-actions-url]: https://github.com/elomagic/studyimporter/actions
