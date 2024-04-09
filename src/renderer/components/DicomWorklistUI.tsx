@@ -81,17 +81,22 @@ const columns: ColumnData[] = [
 
 const VirtuosoTableComponents: TableComponents<DicomWorklistEntry> = {
   Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
+    // eslint-disable-next-line react/jsx-props-no-spreading
     <TableContainer component={Paper} {...props} ref={ref} />
   )),
   Table: (props) => (
     <Table
+      /* eslint-disable-next-line react/jsx-props-no-spreading */
       {...props}
       sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }}
     />
   ),
+  // @ts-ignore
   TableHead,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars,react/jsx-props-no-spreading,react/prop-types
   TableRow: ({ item: _item, ...props }) => <TableRow {...props} />,
   TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
+    // eslint-disable-next-line react/jsx-props-no-spreading
     <TableBody {...props} ref={ref} />
   )),
 };

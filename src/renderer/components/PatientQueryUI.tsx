@@ -70,22 +70,28 @@ const columns: ColumnData[] = [
 
 const VirtuosoTableComponents: TableComponents<RowData> = {
   Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
+    // eslint-disable-next-line react/jsx-props-no-spreading
     <TableContainer component={Paper} {...props} ref={ref} />
   )),
   Table: (props) => (
     <Table
+      /* eslint-disable-next-line react/jsx-props-no-spreading */
       {...props}
       sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }}
     />
   ),
+  // @ts-ignore
   TableHead,
+  // eslint-disable-next-line react/jsx-props-no-spreading,@typescript-eslint/no-unused-vars,react/prop-types
   TableRow: ({ item: _item, ...props }) => <TableRow {...props} />,
   TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
+    // eslint-disable-next-line react/jsx-props-no-spreading
     <TableBody {...props} ref={ref} />
   )),
 };
 
 type PatientQueryUIProps = {
+  // eslint-disable-next-line react/require-default-props
   onSelect?: (row: any | undefined) => void;
 };
 
@@ -111,7 +117,7 @@ const PatientQueryUI: FunctionComponent<PatientQueryUIProps> = ({
     }
   };
 
-  function rowContent(_index: number, row: RowData) {
+  const rowContent = (_index: number, row: RowData) => {
     return (
       <>
         {columns.map((column, index) => (
@@ -130,9 +136,9 @@ const PatientQueryUI: FunctionComponent<PatientQueryUIProps> = ({
         ))}
       </>
     );
-  }
+  };
 
-  function fixedHeaderContent() {
+  const fixedHeaderContent = () => {
     return (
       <TableRow>
         {columns.map((column, index) => (
@@ -150,7 +156,7 @@ const PatientQueryUI: FunctionComponent<PatientQueryUIProps> = ({
         ))}
       </TableRow>
     );
-  }
+  };
 
   const queryModel = (query: string) => {
     setRows([]);

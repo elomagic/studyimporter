@@ -18,36 +18,6 @@ function createImage(image: any, imageId: string) {
   const rows = image.naturalHeight;
   const columns = image.naturalWidth;
 
-  function getPixelData(targetBuffer: any) {
-    const imageData: ImageData | null = getImageData();
-
-    let targetArray;
-
-    // Check if targetBuffer is provided for volume viewports
-    if (targetBuffer) {
-      targetArray = new Uint8Array(
-        targetBuffer.arrayBuffer,
-        targetBuffer.offset,
-        targetBuffer.length,
-      );
-    } else {
-      targetArray = new Uint8Array(imageData === null ? 0 : imageData.width * imageData.height * 3);
-    }
-
-    // modify original image data and remove alpha channel (RGBA to RGB)
-    convertImageDataToRGB(imageData, targetArray);
-
-    return targetArray;
-  }
-
-  function convertImageDataToRGB(imageData: any, targetArray: Uint8Array) {
-    for (let i = 0, j = 0; i < imageData.data.length; i += 4, j += 3) {
-      targetArray[j] = imageData.data[i];
-      targetArray[j + 1] = imageData.data[i + 1];
-      targetArray[j + 2] = imageData.data[i + 2];
-    }
-  }
-
   function getImageData(): ImageData | null {
     let context;
 
@@ -65,7 +35,41 @@ function createImage(image: any, imageId: string) {
       lastImageIdDrawn = imageId;
     }
 
-    return context === null ? null : context.getImageData(0, 0, image.naturalWidth, image.naturalHeight);
+    return context === null
+      ? null
+      : context.getImageData(0, 0, image.naturalWidth, image.naturalHeight);
+  }
+
+  function convertImageDataToRGB(imageData: any, targetArray: Uint8Array) {
+    for (let i = 0, j = 0; i < imageData.data.length; i += 4, j += 3) {
+      targetArray[j] = imageData.data[i];
+      targetArray[j + 1] = imageData.data[i + 1];
+      targetArray[j + 2] = imageData.data[i + 2];
+    }
+  }
+
+  function getPixelData(targetBuffer: any) {
+    const imageData: ImageData | null = getImageData();
+
+    let targetArray;
+
+    // Check if targetBuffer is provided for volume viewports
+    if (targetBuffer) {
+      targetArray = new Uint8Array(
+        targetBuffer.arrayBuffer,
+        targetBuffer.offset,
+        targetBuffer.length,
+      );
+    } else {
+      targetArray = new Uint8Array(
+        imageData === null ? 0 : imageData.width * imageData.height * 3,
+      );
+    }
+
+    // modify original image data and remove alpha channel (RGBA to RGB)
+    convertImageDataToRGB(imageData, targetArray);
+
+    return targetArray;
   }
 
   function getCanvas() {
@@ -141,7 +145,7 @@ function loadImage(uri: string | URL, imageId: string) {
   xhr.open('GET', uri, true);
   xhr.responseType = 'arraybuffer';
 
-  xhr.onprogress = function (oProgress) {
+  xhr.onprogress = (oProgress) => {
     if (oProgress.lengthComputable) {
       // evt.loaded the bytes browser receive
       // evt.total the total bytes set by the header
@@ -165,10 +169,12 @@ function loadImage(uri: string | URL, imageId: string) {
   };
 
   const promise = new Promise((resolve, reject) => {
-    xhr.onload = function () {
+    xhr.onload = () => {
+      // @ts-ignore
       const imagePromise = arrayBufferToImage(this.response);
 
       imagePromise
+        // eslint-disable-next-line promise/always-return
         .then((image) => {
           const imageObject = createImage(image, imageId);
 
@@ -178,7 +184,7 @@ function loadImage(uri: string | URL, imageId: string) {
           logger.error(error);
         });
     };
-    xhr.onerror = function (error) {
+    xhr.onerror = (error) => {
       reject(error);
     };
 
@@ -195,53 +201,59 @@ function loadImage(uri: string | URL, imageId: string) {
   };
 }
 
-function registerWebImageLoader(imageLoader: any): void {
-  imageLoader.registerImageLoader('web', _loadImageIntoBuffer);
-}
-
 /**
  * Small stripped down loader from cornerstoneDICOMImageLoader
  * Which doesn't create cornerstone images that we don't need
  */
-function _loadImageIntoBuffer(
+function loadImageIntoBuffer(
   imageId: string,
   options?: Record<string, any>,
-): { promise: Promise<Record<string, any>>; cancelFn: undefined | (() => void) } {
+): {
+  promise: Promise<Record<string, any>>;
+  cancelFn: undefined | (() => void);
+} {
   const uri = imageId.replace('web:', '');
 
-  const promise: Promise<Record<string, any> | any> = new Promise((resolve, reject) => {
-    // get the pixel data from the server
-    loadImage(uri, imageId)
-      .promise.then(
-        (image) => {
-          if (
-            !options ||
-            !options.targetBuffer ||
-            !options.targetBuffer.length ||
-            !options.targetBuffer.offset
-          ) {
-            resolve(image);
-            return;
-          }
+  const promise: Promise<Record<string, any> | any> = new Promise(
+    (resolve, reject) => {
+      // get the pixel data from the server
+      loadImage(uri, imageId)
+        .promise.then(
+          (image) => {
+            // eslint-disable-next-line promise/always-return
+            if (
+              !options ||
+              !options.targetBuffer ||
+              !options.targetBuffer.length ||
+              !options.targetBuffer.offset
+            ) {
+              resolve(image);
+              return;
+            }
 
-          // @ts-ignore
-          image.getPixelData(options.targetBuffer);
+            // @ts-ignore
+            image.getPixelData(options.targetBuffer);
 
-          resolve(true);
-        },
-        (error) => {
+            resolve(true);
+          },
+          (error) => {
+            reject(error);
+          },
+        )
+        .catch((error) => {
           reject(error);
-        },
-      )
-      .catch((error) => {
-        reject(error);
-      });
-  });
+        });
+    },
+  );
 
   return {
     promise,
     cancelFn: undefined,
   };
+}
+
+function registerWebImageLoader(imageLoader: any): void {
+  imageLoader.registerImageLoader('web', loadImageIntoBuffer);
 }
 
 export default registerWebImageLoader;

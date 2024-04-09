@@ -189,6 +189,7 @@ const StepSelectMediaSource: FunctionComponent<SelectMediaSourceProps> = ({
         dicomFiles.forEach((file, index, files) => {
           window.electron.ipcRenderer
             .readDicomFileAsXml(file)
+            // eslint-disable-next-line promise/no-nesting
             .then((xmlResponse) => {
               const settings = undefinedSettings();
               settings.importOptions.lastUsedImportMode =
@@ -196,6 +197,7 @@ const StepSelectMediaSource: FunctionComponent<SelectMediaSourceProps> = ({
               window.electron.ipcRenderer.applySettings(settings);
               return xmlResponse.xml;
             })
+            // eslint-disable-next-line promise/no-nesting
             .then((xml) => {
               // TODO Map file and append to tree
               // TODO Update read counter
@@ -218,6 +220,7 @@ const StepSelectMediaSource: FunctionComponent<SelectMediaSourceProps> = ({
             .finally(() => {
               setReadDisabled(false);
             })
+            // eslint-disable-next-line promise/no-nesting
             .catch((ex: Error) => {
               logger.error(ex.message);
               setNextDisabled(true);
@@ -260,6 +263,7 @@ const StepSelectMediaSource: FunctionComponent<SelectMediaSourceProps> = ({
 
   const handleNextClick = () => {
     logger.info('Studies read: %s', readStudies.length);
+    // @ts-ignore
     dispatch(setStudies(readStudies));
     onNext();
   };

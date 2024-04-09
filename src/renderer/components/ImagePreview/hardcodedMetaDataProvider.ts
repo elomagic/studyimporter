@@ -6,13 +6,16 @@ export default function hardcodedMetaDataProvider(
   imageId: string,
   imageIds: any[],
 ): any {
-  const colonIndex = imageId.indexOf(':');
-  const scheme = imageId.substring(0, colonIndex);
+  // const colonIndex = imageId.indexOf(':');
+  // const scheme = imageId.substring(0, colonIndex);
   logger.info(`hardcodedMetaDataProvider(type=${type}, imageId=${imageId})`);
 
+  /*
+    TODO
   if (scheme !== 'web') {
     return;
   }
+  */
 
   if (type === 'imagePixelModule') {
     return {
@@ -23,7 +26,9 @@ export default function hardcodedMetaDataProvider(
       photometricInterpretation: 'RGB',
       samplesPerPixel: 3,
     };
-  } else if (type === 'generalSeriesModule') {
+  }
+
+  if (type === 'generalSeriesModule') {
     return {
       modality: 'SC',
       seriesNumber: 1,
@@ -32,7 +37,9 @@ export default function hardcodedMetaDataProvider(
       seriesTime: '120000',
       seriesInstanceUID: '1.2.276.0.7230010.3.1.4.83233.20190201120000.1',
     };
-  } else if (type === 'imagePlaneModule') {
+  }
+
+  if (type === 'imagePlaneModule') {
     const index = imageIds.indexOf(imageId);
     // console.warn(index);
     return {
@@ -47,7 +54,9 @@ export default function hardcodedMetaDataProvider(
       rowCosines: [1, 0, 0],
       columnCosines: [0, 1, 0],
     };
-  } else if (type === 'voiLutModule') {
+  }
+
+  if (type === 'voiLutModule') {
     return {
       // According to the DICOM standard, the width is the number of samples
       // in the input, so 256 samples.
@@ -56,11 +65,14 @@ export default function hardcodedMetaDataProvider(
       // sample counts
       windowCenter: [128],
     };
-  } else if (type === 'modalityLutModule') {
+  }
+
+  if (type === 'modalityLutModule') {
     return {
       rescaleSlope: 1,
       rescaleIntercept: 0,
     };
   }
+
   return undefined;
 }

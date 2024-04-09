@@ -174,6 +174,7 @@ const StepStoreStudies: FunctionComponent<StepStoreStudiesProps> = ({
           return insertStoringLog(
             textLines,
             t('image_store_failed', { url: image.dicomFileURL }),
+            // eslint-disable-next-line promise/no-nesting
           ).then((text) => {
             textLines = text;
             return textLines;
