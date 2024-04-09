@@ -4,7 +4,7 @@ import {
   FhirConnectionOptions,
   Settings,
 } from '../shared/configuration-properties';
-import { IpcChannels } from '../shared/ipc-channels';
+import IpcChannels from '../shared/IpcChannels';
 import {
   CEchoRequest,
   CEchoResponse,

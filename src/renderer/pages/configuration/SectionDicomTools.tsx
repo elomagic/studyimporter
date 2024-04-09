@@ -81,9 +81,11 @@ export default function SectionDicomTools() {
           {t('check_dcmtk_version')}
         </Button>
         {'  '}
+        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
         <Link
           component="button"
-          onClick={() => window.open('https://dicom.offis.de/')}>
+          onClick={() => window.open('https://dicom.offis.de/')}
+        >
           {t('visit_offis')}
         </Link>
       </Box>

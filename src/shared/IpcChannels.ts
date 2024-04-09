@@ -1,4 +1,4 @@
-export enum IpcChannels {
+enum IpcChannels {
   AnnouncementFhirStudy = 'announcement-fhir-study',
   AppGetPath = 'app-get-path',
   ApplySettings = 'apply-settings',
@@ -19,3 +19,5 @@ export enum IpcChannels {
   StoreDicomImage = 'store-dicom-image',
   TestFhirConnection = 'test-fhir-connection',
 }
+
+export default IpcChannels;

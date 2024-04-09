@@ -110,7 +110,8 @@ const StepStoreStudies: FunctionComponent<StepStoreStudiesProps> = ({
     };
 
     return window.electron.ipcRenderer.storeDicomImage(request).then(
-      (_storeResponse: CStoreResponse) => {
+      (storeResponse: CStoreResponse) => {
+        logger.debug(`Store responsed: ${storeResponse.displayText}`);
         return insertStoringLog(
           lines,
           t('image_successful_stored', { url: image.dicomFileURL }),
@@ -170,7 +171,7 @@ const StepStoreStudies: FunctionComponent<StepStoreStudiesProps> = ({
         .catch((e) => {
           logger.error(e);
           showError(e);
-          insertStoringLog(
+          return insertStoringLog(
             textLines,
             t('image_store_failed', { url: image.dicomFileURL }),
           ).then((text) => {

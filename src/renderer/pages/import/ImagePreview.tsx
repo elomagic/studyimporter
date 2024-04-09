@@ -48,11 +48,16 @@ const ImagePreview: FunctionComponent<ImagePreviewProps> = ({
 
   return (
     <Box className="ImagePreview-Container">
-      <img
+      <Box
+        component="img"
         src={imageUri}
         alt="Serie Preview"
         role="button"
         loading="lazy"
+        sx={{
+          maxWidth: '100%',
+          maxHeight: '100%',
+        }}
         onClick={handleOnImageClick}
       />
     </Box>

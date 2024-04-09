@@ -27,7 +27,7 @@ import {
   storeImagePromise,
   validateDicomTools,
 } from './dicom-tk';
-import { IpcChannels } from '../shared/ipc-channels';
+import IpcChannels from '../shared/IpcChannels';
 import {
   FhirConnectionOptions,
   Settings,
