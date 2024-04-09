@@ -7,6 +7,8 @@ if (dependencies) {
   const dependenciesKeys = Object.keys(dependencies);
   const nativeDeps = fs
     .readdirSync('node_modules')
+    // Next line added by Carsten 2024-04-09 as workaround because PDF viewer will still work with native canvas dependency
+    .filter((dep) => dep !== 'canvas')
     .filter((folder) => fs.existsSync(`node_modules/${folder}/binding.gyp`));
   if (nativeDeps.length === 0) {
     process.exit(0);
