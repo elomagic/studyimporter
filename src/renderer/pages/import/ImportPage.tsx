@@ -15,7 +15,7 @@ interface StepProps {
 }
 
 function StepContent(props: Readonly<StepProps>) {
-  const { children, value, step, ...other } = props;
+  const { children, value, step } = props;
 
   return (
     <Box
@@ -30,7 +30,6 @@ function StepContent(props: Readonly<StepProps>) {
       hidden={value !== step}
       id={`import-step-tab-content-${step}`}
       aria-labelledby={`tab-content-${step}`}
-      {...other}
     >
       {children}
     </Box>

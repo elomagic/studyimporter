@@ -42,6 +42,7 @@ import {
 // eslint-disable-next-line no-undef
 import OpenDialogReturnValue = Electron.Main.OpenDialogReturnValue;
 
+// eslint-disable-next-line import/prefer-default-export
 export const registerMainHandlers = () => {
   ipcMain.handle(
     IpcChannels.OpenFolder,

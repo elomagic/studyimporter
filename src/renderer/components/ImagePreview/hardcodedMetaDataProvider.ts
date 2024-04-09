@@ -1,5 +1,5 @@
 // Add hardcoded meta data provider for color images
-import logger from "electron-log/renderer";
+import logger from 'electron-log/renderer';
 
 export default function hardcodedMetaDataProvider(
   type: string,

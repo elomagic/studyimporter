@@ -2,7 +2,7 @@ import * as cornerstone from '@cornerstonejs/core';
 import logger from 'electron-log/renderer';
 
 const canvas = document.createElement('canvas');
-let lastImageIdDrawn;
+let lastImageIdDrawn: string;
 
 // Todo: this loader should exist in a separate package in the same monorepo
 
@@ -13,7 +13,7 @@ let lastImageIdDrawn;
  * @param imageId - the imageId for this image
  * @returns Cornerstone Image Object
  */
-function createImage(image, imageId: string) {
+function createImage(image: any, imageId: string) {
   // extract the attributes we need
   const rows = image.naturalHeight;
   const columns = image.naturalWidth;
@@ -168,7 +168,7 @@ function loadImage(uri: string | URL, imageId: string) {
   };
 
   const promise = new Promise((resolve, reject) => {
-    xhr.onload = function() {
+    xhr.onload = function () {
       const imagePromise = arrayBufferToImage(this.response);
 
       imagePromise
@@ -181,7 +181,7 @@ function loadImage(uri: string | URL, imageId: string) {
           logger.error(error);
         });
     };
-    xhr.onerror = function(error) {
+    xhr.onerror = function (error) {
       reject(error);
     };
 

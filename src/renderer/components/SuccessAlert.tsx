@@ -18,6 +18,7 @@ const SuccessAlert: FunctionComponent<SuccessAlertProps> = ({
   }, [text]);
 
   return (
+    // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {successText === undefined ||
         (successText.length > 0 && (

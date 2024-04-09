@@ -1,4 +1,4 @@
-import xpath, { SelectReturnType } from "xpath";
+import xpath, { SelectReturnType } from 'xpath';
 import log from 'electron-log/renderer';
 import {
   DicomImageMeta,

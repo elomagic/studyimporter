@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Link, Paper } from "@mui/material";
+import { Box, Button, Link, Paper } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { TableVirtuoso } from 'react-virtuoso';
 import { FaCheckCircle } from 'react-icons/fa';
@@ -81,7 +81,9 @@ export default function SectionDicomTools() {
           {t('check_dcmtk_version')}
         </Button>
         {'  '}
-        <Link onClick={() => window.open('https://dicom.offis.de/')}>
+        <Link
+          component="button"
+          onClick={() => window.open('https://dicom.offis.de/')}>
           {t('visit_offis')}
         </Link>
       </Box>

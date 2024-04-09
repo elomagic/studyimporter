@@ -8,7 +8,7 @@ interface TabPanelProps {
 }
 
 export default function TabContent(props: Readonly<TabPanelProps>) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index } = props;
 
   return (
     <Box
@@ -21,7 +21,6 @@ export default function TabContent(props: Readonly<TabPanelProps>) {
         margin: '6px',
         flexDirection: 'column',
       }}
-      {...other}
     >
       {children}
     </Box>

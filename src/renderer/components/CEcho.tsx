@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import logger from 'electron-log/renderer';
 import { Box, Button, CircularProgress, Paper } from '@mui/material';
-import { useTranslation } from "react-i18next";
+import { useTranslation } from 'react-i18next';
 import {
   CEchoRequest,
   CEchoResponse,

@@ -18,6 +18,7 @@ const ErrorAlert: FunctionComponent<ErrorAlertProps> = ({
   }, [text]);
 
   return (
+    // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {alertText === undefined ||
         (alertText.length > 0 && (

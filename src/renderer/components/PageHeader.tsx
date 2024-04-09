@@ -14,6 +14,7 @@ import YesNoDialog from './YesNoDialog';
 
 interface BreadcrumbProps {
   title: string;
+  // eslint-disable-next-line react/require-default-props
   importMode?: boolean;
 }
 

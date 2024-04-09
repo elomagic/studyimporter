@@ -57,7 +57,7 @@ const DicomNodeUI: FunctionComponent<DicomNodeProps> = ({
       port:
         inputPortRef?.current?.value === undefined
           ? undefined
-          : +inputPortRef?.current?.value,
+          : parseInt(inputPortRef?.current?.value, 10),
       aet: inputAetRef?.current?.value,
       localAET: inputMyAetRef?.current?.value,
     };

@@ -29,6 +29,7 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+// eslint-disable-next-line react/function-component-definition
 const YesNoDialog: FunctionComponent<YesNoDialogProps> = ({
   title,
   text,
