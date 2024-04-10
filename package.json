@@ -54,7 +54,7 @@
   },
   "jest": {
     "moduleDirectories": [
-      "Disbled by Carsten on 2024-04-10 > node_modules",
+      "node_modules",
       "release/app/node_modules",
       "src"
     ],
