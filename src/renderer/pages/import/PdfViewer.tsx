@@ -1,11 +1,12 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+import 'pdfjs-dist/build/pdf.worker.min.js';
 import logger from 'electron-log';
 import { SxProps } from '@mui/system/styleFunctionSx';
 import { Box, Theme } from '@mui/material';
 import { DicomImageMeta } from '../../../shared/shared-types';
-
-// TODO Should be replaced by https://github.com/mozilla/pdf.js
 
 interface PdfViewerProps {
   image: DicomImageMeta | undefined;
@@ -13,11 +14,8 @@ interface PdfViewerProps {
   sx?: SxProps<Theme>;
 }
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  // @ts-ignore
-  import.meta.url,
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc =
+  'node_modules/pdfjs-dist/build/pdf.worker.min.js';
 
 // eslint-disable-next-line react/function-component-definition
 const PdfViewer: FunctionComponent<PdfViewerProps> = ({
