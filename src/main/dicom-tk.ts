@@ -67,7 +67,7 @@ function validateToolsQueue(
               .exec(data)
               ?.toString()
               .replace(tool, '')
-              .replace('\$', ''),
+              .replace('$', ''),
             status: childProcess.exitCode === 0,
           };
 
