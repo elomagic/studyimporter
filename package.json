@@ -241,7 +241,7 @@
     "publish": {
       "provider": "github",
       "owner": "elomagic",
-      "repo": "studyimporter3"
+      "repo": "studyimporter"
     }
   },
   "devEngines": {
