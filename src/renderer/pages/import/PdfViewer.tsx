@@ -4,14 +4,11 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'pdfjs-dist/build/pdf.worker.min.js';
 import logger from 'electron-log';
-import { SxProps } from '@mui/system/styleFunctionSx';
-import { Box, Theme } from '@mui/material';
+import { Box } from '@mui/material';
 import { DicomImageMeta } from '../../../shared/shared-types';
 
 interface PdfViewerProps {
   image: DicomImageMeta | undefined;
-  // eslint-disable-next-line react/require-default-props
-  sx?: SxProps<Theme>;
 }
 
 pdfjs.GlobalWorkerOptions.workerSrc =
@@ -20,7 +17,6 @@ pdfjs.GlobalWorkerOptions.workerSrc =
 // eslint-disable-next-line react/function-component-definition
 const PdfViewer: FunctionComponent<PdfViewerProps> = ({
   image,
-  sx,
 }: PdfViewerProps) => {
   // const [numPages, setNumPages] = useState<number | undefined>(undefined);
   const [pageNumber, setPageNumber] = useState<number>(1);
@@ -58,9 +54,8 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
   };
 
   return (
-    <Box className="PdfViewer" sx={sx}>
+    <Box id="PdfViewer" sx={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
       <Document
-        className="overflow-auto position-absolute h-100 w-100"
         file={data}
         onLoadSuccess={handleDocumentLoadSuccess}
         options={options}

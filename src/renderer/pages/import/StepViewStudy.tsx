@@ -95,10 +95,7 @@ const StepViewStudy: FunctionComponent<StepPreviewStudiesProps> = ({
         )}
 
         {previewImage?.directoryRecordType === 'ENCAP DOC' && (
-          <PdfViewer
-            image={previewImage}
-            sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
-          />
+          <PdfViewer image={previewImage} />
         )}
       </Box>
 
