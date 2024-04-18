@@ -39,12 +39,6 @@ const volumeId = 'myVolume';
 
 registerWebImageLoader(imageLoader);
 
-metaData.addProvider(
-  (type: string, imageId: string) =>
-    hardcodedMetaDataProvider(type, imageId, ['web:https://picsum.photos/500']),
-  10000,
-);
-
 /**
  * @description Basic working example of cornerstone3D with React using a stripped down version of the webLoader example linked below. Their initDemo function seemed to be the key to getting this working.
  * @link https://github.com/cornerstonejs/cornerstone3D/blob/main/packages/core/examples/webLoader/index.ts
@@ -204,7 +198,15 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         return `${IMAGE_LOADER_SCHEMA}://${dicomFileInstance.seriesInstanceUID},${dicomFileInstance.dicomFileURL}`;
       });
 
+    metaData.removeAllProviders();
+
     if (imageIds !== undefined && imageIds.length !== 0) {
+      metaData.addProvider(
+        (type: string, imageId: string) =>
+          hardcodedMetaDataProvider(type, imageId, imageIds),
+        10000,
+      );
+
       setStack(imageIds)
         .then((a) => {
           logger.info('Stack successfully set.');
