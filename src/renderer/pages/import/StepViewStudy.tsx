@@ -10,7 +10,7 @@ import {
   DicomSeriesMeta,
   DicomStudyMeta,
 } from '../../../shared/shared-types';
-import PdfViewer from './PdfViewer';
+import PdfViewer from '../../components/PdfViewer/PdfViewer';
 import ImageViewer from '../../components/ImagePreview/ImageViewer';
 import StudyListUI from './StudyListUI';
 import { getStudies, setSelectedStudies } from './jobSlice';
@@ -95,10 +95,7 @@ const StepViewStudy: FunctionComponent<StepPreviewStudiesProps> = ({
         )}
 
         {previewImage?.directoryRecordType === 'ENCAP DOC' && (
-          <PdfViewer
-            image={previewImage}
-            sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
-          />
+          <PdfViewer image={previewImage} />
         )}
       </Box>
 
