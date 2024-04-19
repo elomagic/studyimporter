@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -6,11 +6,21 @@ import 'pdfjs-dist/build/pdf.worker.min.js';
 import logger from 'electron-log';
 import { Box, Stack } from '@mui/material';
 import { DicomImageMeta } from '../../../shared/shared-types';
-import PdfToolBar, { ButtonModes } from './PdfToolBar';
+import './PdfViewer.css';
+import { useResizeObserver } from '@wojtekmaj/react-hooks';
+
+const maxWidth = 800;
+
+const options = {
+  cMapUrl: 'cmaps/',
+  cMapPacked: true,
+};
 
 interface PdfViewerProps {
   image: DicomImageMeta | undefined;
 }
+
+const resizeObserverOptions = {};
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   'node_modules/pdfjs-dist/build/pdf.worker.min.js';
@@ -21,13 +31,20 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
 }: PdfViewerProps) => {
   const [pagesCount, setPagesCount] = useState<number>(0);
   // Current page index starts from 1
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [data, setData] = useState<{ data: Uint8Array } | undefined>(undefined);
 
-  const options = {
-    cMapUrl: 'cmaps/',
-    cMapPacked: true,
-  };
+  const containerRef = useRef<Element>();
+  const [containerWidth, setContainerWidth] = useState<number>();
+
+  const onResize = useCallback<ResizeObserverCallback>((entries) => {
+    const [entry] = entries;
+
+    if (entry) {
+      setContainerWidth(entry.contentRect.width);
+    }
+  }, []);
+
+  useResizeObserver(containerRef?.current === undefined ? null : containerRef.current, resizeObserverOptions, onResize);
 
   useEffect(() => {
     if (image === undefined) {
@@ -52,32 +69,30 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
   const handleDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     logger.log('PDF document successful loaded. Num pages', numPages);
     setPagesCount(numPages);
-    setCurrentPage(1);
-  };
-
-  const handleToolbarClick = (value: ButtonModes) => {
-    if (value === ButtonModes.PreviousPage && currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    } else if (value === ButtonModes.NextPage && currentPage < pagesCount) {
-      setCurrentPage(currentPage + 1);
-    }
   };
 
   return (
     <Stack id="PdfViewer" direction="row" flexGrow={1}>
-      <Box flexGrow={1}>
-        <Box overflow="auto">
+      <Stack flexGrow={1} direction="column">
+        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }} ref={containerRef}>
           <Document
             className="PdfDocument"
             file={data}
             onLoadSuccess={handleDocumentLoadSuccess}
             options={options}
           >
-            <Page className="PdfPage" pageNumber={currentPage} />
+            {Array.from(new Array(pagesCount), (el, index) => (
+              <Page
+                className="PdfPage"
+                key={`page_${index + 1}`}
+                pageNumber={index + 1}
+                width={containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth}
+              />
+            ))}
           </Document>
         </Box>
-      </Box>
-      <PdfToolBar onChange={handleToolbarClick} />
+      </Stack>
+      {/* <PdfToolBar onChange={handleToolbarClick} /> */}
     </Stack>
   );
 };

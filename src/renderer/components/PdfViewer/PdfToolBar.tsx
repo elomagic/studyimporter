@@ -2,6 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup, IconButton, Tooltip } from '@mui/material';
 import { GrLinkNext, GrLinkPrevious } from 'react-icons/gr';
+import { FaRegArrowAltCircleLeft, FaRegArrowAltCircleRight } from 'react-icons/fa';
 
 export enum ButtonModes {
   PreviousPage = 'PreviousPage',
@@ -30,12 +31,12 @@ const PdfToolBar: FunctionComponent<PdfToolBarProps> = ({
         <IconButton
           onClick={(event) => onChange(ButtonModes.PreviousPage, event)}
         >
-          <GrLinkPrevious />
+          <FaRegArrowAltCircleLeft />
         </IconButton>
       </Tooltip>
       <Tooltip title={t('next_page')}>
         <IconButton onClick={(event) => onChange(ButtonModes.NextPage, event)}>
-          <GrLinkNext />
+          <FaRegArrowAltCircleRight />
         </IconButton>
       </Tooltip>
     </ButtonGroup>
