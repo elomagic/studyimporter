@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup, IconButton, Tooltip } from '@mui/material';
-import { GrLinkNext, GrLinkPrevious } from 'react-icons/gr';
 import { FaRegArrowAltCircleLeft, FaRegArrowAltCircleRight } from 'react-icons/fa';
 
 export enum ButtonModes {
