@@ -1,4 +1,10 @@
-import React, { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -7,6 +13,7 @@ import logger from 'electron-log';
 import { Box, Stack } from '@mui/material';
 import { DicomImageMeta } from '../../../shared/shared-types';
 import './PdfViewer.css';
+// eslint-disable-next-line import/order
 import { useResizeObserver } from '@wojtekmaj/react-hooks';
 
 const maxWidth = 800;
@@ -36,6 +43,7 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
   const containerRef = useRef<Element>();
   const [containerWidth, setContainerWidth] = useState<number>();
 
+  // eslint-disable-next-line no-undef
   const onResize = useCallback<ResizeObserverCallback>((entries) => {
     const [entry] = entries;
 
@@ -44,7 +52,11 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
     }
   }, []);
 
-  useResizeObserver(containerRef?.current === undefined ? null : containerRef.current, resizeObserverOptions, onResize);
+  useResizeObserver(
+    containerRef?.current === undefined ? null : containerRef.current,
+    resizeObserverOptions,
+    onResize,
+  );
 
   useEffect(() => {
     if (image === undefined) {
@@ -74,7 +86,10 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
   return (
     <Stack id="PdfViewer" direction="row" flexGrow={1}>
       <Stack flexGrow={1} direction="column">
-        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }} ref={containerRef}>
+        <Box
+          sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
+          ref={containerRef}
+        >
           <Document
             className="PdfDocument"
             file={data}
@@ -86,7 +101,9 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
                 className="PdfPage"
                 key={`page_${index + 1}`}
                 pageNumber={index + 1}
-                width={containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth}
+                width={
+                  containerWidth ? Math.min(containerWidth, maxWidth) : maxWidth
+                }
               />
             ))}
           </Document>
