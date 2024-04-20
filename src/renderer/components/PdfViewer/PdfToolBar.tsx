@@ -1,7 +1,10 @@
 import React, { FunctionComponent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ButtonGroup, IconButton, Tooltip } from '@mui/material';
-import { FaRegArrowAltCircleLeft, FaRegArrowAltCircleRight } from 'react-icons/fa';
+import {
+  FaRegArrowAltCircleLeft,
+  FaRegArrowAltCircleRight,
+} from 'react-icons/fa';
 
 export enum ButtonModes {
   PreviousPage = 'PreviousPage',
