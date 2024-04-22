@@ -229,6 +229,12 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
     const { invert } = viewport.getProperties();
 
     switch (mode) {
+      case ButtonModes.PreviousImage:
+        setImageIndex(viewport.getCurrentImageIdIndex() - 1);
+        break;
+      case ButtonModes.NextImage:
+        setImageIndex(viewport.getCurrentImageIdIndex() + 1);
+        break;
       case ButtonModes.FlipHorizontal:
         viewport.setCamera({ flipHorizontal: !viewport.getCamera() });
         break;
@@ -249,12 +255,10 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         viewport.resetProperties();
         break;
       case ButtonModes.RotateLeft:
-        // viewport.setProperties({ rotation: viewport.getRotation() - 90 });
-        setImageIndex(viewport.getCurrentImageIdIndex() - 1);
+        viewport.setProperties({ rotation: viewport.getRotation() - 90 });
         break;
       case ButtonModes.RotateRight:
-        // viewport.setProperties({ rotation: viewport.getRotation() + 90 });
-        setImageIndex(viewport.getCurrentImageIdIndex() + 1);
+        viewport.setProperties({ rotation: viewport.getRotation() + 90 });
         break;
       default:
         break;

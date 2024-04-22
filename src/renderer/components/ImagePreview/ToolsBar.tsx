@@ -8,7 +8,7 @@ import {
   ToggleButtonGroup,
   Tooltip,
 } from '@mui/material';
-import { FaImages, FaSearch } from 'react-icons/fa';
+import { FaImages, FaRegArrowAltCircleLeft, FaRegArrowAltCircleRight, FaSearch } from 'react-icons/fa';
 import { TbFlipHorizontal, TbFlipVertical } from 'react-icons/tb';
 import { IoInvertMode } from 'react-icons/io5';
 import {
@@ -19,6 +19,8 @@ import { RxReset } from 'react-icons/rx';
 import { useTranslation } from 'react-i18next';
 
 export enum ButtonModes {
+  PreviousImage = 'PreviousImage',
+  NextImage = 'NextImage',
   FlipHorizontal = 'FlipHorizontal',
   FlipVertical = 'FlipVertical',
   Invert = 'Invert',
@@ -60,6 +62,16 @@ const ToolsBar: FunctionComponent<ToolsBarProps> = ({
         orientation="vertical"
         aria-label="button group"
       >
+        <IconButton
+          onClick={(event) => onChange(ButtonModes.PreviousImage, event)}
+        >
+          <FaRegArrowAltCircleLeft />
+        </IconButton>
+        <IconButton
+          onClick={(event) => onChange(ButtonModes.NextImage, event)}
+        >
+          <FaRegArrowAltCircleRight />
+        </IconButton>
         <IconButton
           onClick={(event) => onChange(ButtonModes.FlipHorizontal, event)}
         >
