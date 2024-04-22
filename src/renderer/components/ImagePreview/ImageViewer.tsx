@@ -13,7 +13,6 @@ import {
   IRenderingEngine,
   IStackViewport,
 } from '@cornerstonejs/core/dist/types/types';
-import { useTranslation } from 'react-i18next';
 import ToolsBar, { ButtonModes } from './ToolsBar';
 import { IMAGE_LOADER_SCHEMA } from './initImageLoader';
 import {
@@ -22,14 +21,10 @@ import {
   DicomStudyMeta,
 } from '../../../shared/shared-types';
 import './ImageViewer.css';
-import {
-  formatDicomDateString,
-  formatDicomTimeString,
-} from '../../string-formatter';
-import { Settings } from '../../../shared/configuration-properties';
 import registerWebImageLoader from './registerWebImageLoader';
 import hardcodedMetaDataProvider from './hardcodedMetaDataProvider';
 import initViewer from './initViewer';
+import TextOverlay from './TextOverlay';
 
 // ======== Constants ======= //
 const renderingEngineId = 'myRenderingEngine';
@@ -77,9 +72,7 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
 }: ImagePreviewProps) => {
   const containerRef: React.MutableRefObject<HTMLDivElement | undefined> =
     useRef();
-  const { t } = useTranslation();
   // const [dicomImages, setDicomImages] = useState<DicomImageMeta[]>([]);
-  const [locale, setLocale] = useState<string>();
   const [image, setImage] = useState<DicomImageMeta | undefined>();
 
   const getViewport: () => IStackViewport | undefined = () => {
@@ -129,16 +122,6 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
 
   useEffect(() => {
     logger.info('First and only useEffect call');
-
-    window.electron.ipcRenderer
-      .getSettings()
-      .then((settings: Settings) => {
-        setLocale(settings.ui.language);
-        return settings;
-      })
-      .catch((ex) => {
-        logger.error(ex);
-      });
 
     const container = containerRef.current;
 
@@ -284,40 +267,13 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
             id="cornerstone-element"
           />
         </Box>
-        <Box className="ImageViewer-top-left">
-          <div>
-            #{dicomSerie?.patient?.patientID}{' '}
-            {dicomSerie?.patient?.patientDisplayName}
-          </div>
-          <div>
-            *
-            {formatDicomDateString(
-              dicomSerie?.patient?.patientDayOfBirth,
-              locale,
-            )}{' '}
-            {dicomSerie?.patient?.patientGender}
-          </div>
-          <div>
-            {image?.instanceNumber}/{dicomSerie?.images.length}
-          </div>
-        </Box>
-        <Box className="ImageViewer-top-right">
-          <div>{dicomSerie?.institutionName}</div>
-          <div>
-            {image?.manufacturer} {image?.manufacturerModelName}
-          </div>
-          <div>{study?.studyDescription}</div>
-          <div>
-            {formatDicomDateString(study?.performedDate, locale)}{' '}
-            {formatDicomTimeString(study?.performedTime, t('time_format'))}
-          </div>
-        </Box>
-        <Box className="ImageViewer-bottom-left">
-          <div>{dicomSerie?.seriesDescription}</div>
-          <div>{dicomSerie?.modality}</div>
-        </Box>
-        <Box className="ImageViewer-bottom-right">{bottomRight}</Box>
-        <Box className="ImageViewer-center">{center}</Box>
+        <TextOverlay
+          bottomRight={bottomRight}
+          center={center}
+          image={image}
+          dicomSerie={dicomSerie}
+          study={study}
+        />
       </Box>
       <ToolsBar onChange={handleToolButtonClick} />
     </Box>

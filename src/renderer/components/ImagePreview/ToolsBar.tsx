@@ -8,7 +8,12 @@ import {
   ToggleButtonGroup,
   Tooltip,
 } from '@mui/material';
-import { FaImages, FaRegArrowAltCircleLeft, FaRegArrowAltCircleRight, FaSearch } from 'react-icons/fa';
+import {
+  FaImages,
+  FaRegArrowAltCircleLeft,
+  FaRegArrowAltCircleRight,
+  FaSearch,
+} from 'react-icons/fa';
 import { TbFlipHorizontal, TbFlipVertical } from 'react-icons/tb';
 import { IoInvertMode } from 'react-icons/io5';
 import {
@@ -67,9 +72,7 @@ const ToolsBar: FunctionComponent<ToolsBarProps> = ({
         >
           <FaRegArrowAltCircleLeft />
         </IconButton>
-        <IconButton
-          onClick={(event) => onChange(ButtonModes.NextImage, event)}
-        >
+        <IconButton onClick={(event) => onChange(ButtonModes.NextImage, event)}>
           <FaRegArrowAltCircleRight />
         </IconButton>
         <IconButton
