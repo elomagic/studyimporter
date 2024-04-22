@@ -6,16 +6,7 @@ export default function hardcodedMetaDataProvider(
   imageId: string,
   imageIds: any[],
 ): any {
-  // const colonIndex = imageId.indexOf(':');
-  // const scheme = imageId.substring(0, colonIndex);
   logger.info(`hardcodedMetaDataProvider(type=${type}, imageId=${imageId})`);
-
-  /*
-    TODO
-  if (scheme !== 'web') {
-    return;
-  }
-  */
 
   if (type === 'imagePixelModule') {
     return {
@@ -29,19 +20,19 @@ export default function hardcodedMetaDataProvider(
   }
 
   if (type === 'generalSeriesModule') {
+    const url = new URL(imageId);
     return {
-      modality: 'SC',
+      modality: url.searchParams.get('modality') ?? 'OT',
       seriesNumber: 1,
       seriesDescription: 'Color',
       seriesDate: '20190201',
       seriesTime: '120000',
-      seriesInstanceUID: '1.2.276.0.7230010.3.1.4.83233.20190201120000.1',
+      seriesInstanceUID: url.searchParams.get('seriesInstanceUid'),
     };
   }
 
   if (type === 'imagePlaneModule') {
     const index = imageIds.indexOf(imageId);
-    // console.warn(index);
     return {
       imageOrientationPatient: [1, 0, 0, 0, 1, 0],
       imagePositionPatient: [0, 0, index * 5],

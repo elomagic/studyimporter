@@ -102,8 +102,10 @@ export function loadImage(imageId: string): {
   promise: Promise<Record<string, any>>;
   cancelFn: () => void;
 } {
-  const serieInstanceUid: string = imageId.split(',')[0].substring(8);
-  const getDicomImage: string = imageId.split(',')[1];
+  const url = new URL(imageId);
+  const serieInstanceUid: string =
+    url.searchParams.get('seriesInstanceUid') ?? '';
+  const getDicomImage: string = url.searchParams.get('file') ?? '';
 
   const promise: Promise<Record<string, any>> = new Promise(
     (resolve, reject) => {

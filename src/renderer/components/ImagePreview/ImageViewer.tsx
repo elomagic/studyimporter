@@ -35,7 +35,6 @@ import initViewer from './initViewer';
 const renderingEngineId = 'myRenderingEngine';
 const viewportId = 'CT_STACK';
 const volumeId = 'myVolume';
-// const imageIds = ['web:https://picsum.photos/500'];
 
 registerWebImageLoader(imageLoader);
 
@@ -195,7 +194,7 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         return a.instanceNumber - b.instanceNumber;
       })
       .map((dicomFileInstance) => {
-        return `${IMAGE_LOADER_SCHEMA}://${dicomFileInstance.seriesInstanceUID},${dicomFileInstance.dicomFileURL}`;
+        return `${IMAGE_LOADER_SCHEMA}://?seriesInstanceUid=${dicomFileInstance.seriesInstanceUID}&modality=${dicomSerie?.modality}&file=${dicomFileInstance.dicomFileURL}`;
       });
 
     metaData.removeAllProviders();
