@@ -275,7 +275,14 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
           study={study}
         />
       </Box>
-      <ToolsBar onChange={handleToolButtonClick} />
+      <ToolsBar
+        previousDisabled={getViewport()?.getCurrentImageIdIndex() === 0}
+        nextDisabled={
+          (getViewport()?.getImageIds.length ?? 0) <
+          (getViewport()?.getCurrentImageIdIndex() ?? 0) + 1
+        }
+        onChange={handleToolButtonClick}
+      />
     </Box>
   );
 };

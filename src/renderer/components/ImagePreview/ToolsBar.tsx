@@ -37,11 +37,15 @@ export enum ButtonModes {
 }
 
 type ToolsBarProps = {
+  previousDisabled: boolean;
+  nextDisabled: boolean;
   onChange: (value: ButtonModes, event: any) => void;
 };
 
 // eslint-disable-next-line react/function-component-definition
 const ToolsBar: FunctionComponent<ToolsBarProps> = ({
+  previousDisabled,
+  nextDisabled,
   onChange,
 }: ToolsBarProps) => {
   const { t } = useTranslation();
@@ -68,11 +72,14 @@ const ToolsBar: FunctionComponent<ToolsBarProps> = ({
         aria-label="button group"
       >
         <IconButton
+          disabled={previousDisabled}
           onClick={(event) => onChange(ButtonModes.PreviousImage, event)}
         >
           <FaRegArrowAltCircleLeft />
         </IconButton>
-        <IconButton onClick={(event) => onChange(ButtonModes.NextImage, event)}>
+        <IconButton
+          disabled={nextDisabled}
+          onClick={(event) => onChange(ButtonModes.NextImage, event)}>
           <FaRegArrowAltCircleRight />
         </IconButton>
         <IconButton
