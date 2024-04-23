@@ -79,7 +79,8 @@ const ToolsBar: FunctionComponent<ToolsBarProps> = ({
         </IconButton>
         <IconButton
           disabled={nextDisabled}
-          onClick={(event) => onChange(ButtonModes.NextImage, event)}>
+          onClick={(event) => onChange(ButtonModes.NextImage, event)}
+        >
           <FaRegArrowAltCircleRight />
         </IconButton>
         <IconButton
