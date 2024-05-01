@@ -96,7 +96,8 @@ export function createImage(image: HTMLImageElement, imageId: string) {
 
 /**
  * Loads a DICOM image.
- * @param imageId URI of pattern "elosi://serieInstanceUid,dicomFile"
+ *
+ * @param imageId URI of pattern "elosi://?serieInstanceUid=1.2&file=1.dcm"
  */
 export function loadImage(imageId: string): {
   promise: Promise<Record<string, any>>;
@@ -105,12 +106,13 @@ export function loadImage(imageId: string): {
   const url = new URL(imageId);
   const serieInstanceUid: string =
     url.searchParams.get('seriesInstanceUid') ?? '';
-  const getDicomImage: string = url.searchParams.get('file') ?? '';
+  const dicomFile: string = url.searchParams.get('file') ?? '';
 
   const promise: Promise<Record<string, any>> = new Promise(
     (resolve, reject) => {
+      logger.info(`Loading image ${dicomFile}`);
       window.electron.ipcRenderer
-        .getDicomImage(serieInstanceUid, getDicomImage)
+        .getDicomImage(serieInstanceUid, dicomFile)
         .then((buffer: Iterable<number>) => {
           return arrayBufferToImage(buffer);
         })

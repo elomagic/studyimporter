@@ -2,12 +2,11 @@ import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import logger from 'electron-log/renderer';
 import {
   Enums,
-  getRenderingEngine,
-  RenderingEngine,
   imageLoader,
   metaData,
   volumeLoader,
 } from '@cornerstonejs/core';
+import * as cornerstone3D from '@cornerstonejs/core';
 import { Box } from '@mui/material';
 import {
   IRenderingEngine,
@@ -37,12 +36,19 @@ registerWebImageLoader(imageLoader);
  * @description Basic working example of cornerstone3D with React using a stripped down version of the webLoader example linked below. Their initDemo function seemed to be the key to getting this working.
  * @link https://github.com/cornerstonejs/cornerstone3D/blob/main/packages/core/examples/webLoader/index.ts
  * @link https://github.com/cornerstonejs/cornerstone3D/blob/main/utils/demo/helpers/initDemo.js
+ *
+ * @link https://github.com/cornerstonejs/cornerstone3D/blob/main/packages/tools/examples/webWorker/index.ts
  */
 async function run(container: HTMLDivElement) {
   try {
+    cornerstone3D.setUseCPURendering(true);
+    // await cornerstone3D.init();
+
     await initViewer();
 
-    const renderingEngine = new RenderingEngine(renderingEngineId);
+    const renderingEngine = new cornerstone3D.RenderingEngine(
+      renderingEngineId,
+    );
 
     renderingEngine.setViewports([
       {
@@ -76,7 +82,7 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
   const [image, setImage] = useState<DicomImageMeta | undefined>();
 
   const getViewport: () => IStackViewport | undefined = () => {
-    const engine = getRenderingEngine(renderingEngineId);
+    const engine = cornerstone3D.getRenderingEngine(renderingEngineId);
     if (engine === undefined) {
       logger.error('Rendering engine not initialized');
       return undefined;
@@ -114,32 +120,15 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
     function handleResize() {
       logger.log('resized to: ', window.innerWidth, 'x', window.innerHeight);
 
-      getRenderingEngine(renderingEngineId)?.resize(true);
+      cornerstone3D.getRenderingEngine(renderingEngineId)?.resize(true);
     }
 
     window.addEventListener('resize', handleResize);
   });
 
-  useEffect(() => {
-    logger.info('First and only useEffect call');
-
-    const container = containerRef.current;
-
-    if (!container) return;
-
-    run(container)
-      .then((a) => {
-        logger.info('Element container initialized.');
-        return a;
-      })
-      .catch((err) => {
-        logger.error(err);
-      });
-  }, []);
-
   async function setStack(imageIds: string[]) {
     const renderingEngine: IRenderingEngine | undefined =
-      getRenderingEngine(renderingEngineId);
+      cornerstone3D.getRenderingEngine(renderingEngineId);
 
     if (!renderingEngine) {
       logger.error('Engine not initialized');
@@ -164,6 +153,33 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
 
     renderingEngine.render();
   }
+
+  useEffect(() => {
+    logger.info('First and only useEffect call');
+
+    const container = containerRef.current;
+
+    if (!container) return;
+
+    run(container)
+      .then((a) => {
+        logger.info('Element container initialized.');
+        return a;
+      })
+      .catch((err) => {
+        logger.error(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    function handleResize() {
+      logger.log('resized to: ', window.innerWidth, 'x', window.innerHeight);
+
+      cornerstone3D.getRenderingEngine(renderingEngineId)?.resize(true);
+    }
+
+    window.addEventListener('resize', handleResize);
+  });
 
   useEffect(() => {
     const viewport = getViewport();
@@ -219,10 +235,14 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         setImageIndex(viewport.getCurrentImageIdIndex() + 1);
         break;
       case ButtonModes.FlipHorizontal:
-        viewport.setCamera({ flipHorizontal: !viewport.getCamera() });
+        viewport.setCamera({
+          flipHorizontal: !viewport.getCamera().flipHorizontal,
+        });
         break;
       case ButtonModes.FlipVertical:
-        viewport.setCamera({ flipVertical: !viewport.getCamera() });
+        viewport.setCamera({
+          flipVertical: !viewport.getCamera().flipVertical,
+        });
         break;
       case ButtonModes.ZoomImage:
         break;
@@ -235,7 +255,7 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         // Resets the viewport's camera
         viewport.resetCamera();
         // Resets the viewport's properties
-        viewport.resetProperties();
+        viewport.resetToDefaultProperties();
         break;
       case ButtonModes.RotateLeft:
         viewport.setProperties({ rotation: viewport.getRotation() - 90 });
