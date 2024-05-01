@@ -37,6 +37,8 @@ registerWebImageLoader(imageLoader);
  * @description Basic working example of cornerstone3D with React using a stripped down version of the webLoader example linked below. Their initDemo function seemed to be the key to getting this working.
  * @link https://github.com/cornerstonejs/cornerstone3D/blob/main/packages/core/examples/webLoader/index.ts
  * @link https://github.com/cornerstonejs/cornerstone3D/blob/main/utils/demo/helpers/initDemo.js
+ *
+ * @link https://github.com/cornerstonejs/cornerstone3D/blob/main/packages/tools/examples/webWorker/index.ts
  */
 async function run(container: HTMLDivElement) {
   try {
@@ -120,23 +122,6 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
     window.addEventListener('resize', handleResize);
   });
 
-  useEffect(() => {
-    logger.info('First and only useEffect call');
-
-    const container = containerRef.current;
-
-    if (!container) return;
-
-    run(container)
-      .then((a) => {
-        logger.info('Element container initialized.');
-        return a;
-      })
-      .catch((err) => {
-        logger.error(err);
-      });
-  }, []);
-
   async function setStack(imageIds: string[]) {
     const renderingEngine: IRenderingEngine | undefined =
       getRenderingEngine(renderingEngineId);
@@ -164,6 +149,33 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
 
     renderingEngine.render();
   }
+
+  useEffect(() => {
+    logger.info('First and only useEffect call');
+
+    const container = containerRef.current;
+
+    if (!container) return;
+
+    run(container)
+      .then((a) => {
+        logger.info('Element container initialized.');
+        return a;
+      })
+      .catch((err) => {
+        logger.error(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    function handleResize() {
+      logger.log('resized to: ', window.innerWidth, 'x', window.innerHeight);
+
+      getRenderingEngine(renderingEngineId)?.resize(true);
+    }
+
+    window.addEventListener('resize', handleResize);
+  });
 
   useEffect(() => {
     const viewport = getViewport();
