@@ -11,7 +11,7 @@ import {
   DicomStudyMeta,
 } from '../../../shared/shared-types';
 import PdfViewer from '../../components/PdfViewer/PdfViewer';
-import ImageViewer from '../../components/ImagePreview/ImageViewer';
+import ImageViewer from '../../components/ImageViewer/ImageViewer';
 import StudyListUI from './StudyListUI';
 import { getStudies, setSelectedStudies } from './jobSlice';
 

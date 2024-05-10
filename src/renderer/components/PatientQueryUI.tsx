@@ -92,7 +92,7 @@ const VirtuosoTableComponents: TableComponents<RowData> = {
 
 type PatientQueryUIProps = {
   // eslint-disable-next-line react/require-default-props
-  onSelect?: (row: any | undefined) => void;
+  onSelect?: (row: RowData | undefined) => void;
 };
 
 // eslint-disable-next-line react/function-component-definition
@@ -104,11 +104,13 @@ const PatientQueryUI: FunctionComponent<PatientQueryUIProps> = ({
   const [errorText, setErrorText] = useState<string | undefined>('');
   const [sending, setSending] = useState<boolean>(false);
   const [rows, setRows] = useState<RowData[]>([]);
-  const [selectedRow, setSelectedRow] = useState<any | undefined>(undefined);
+  const [selectedRow, setSelectedRow] = useState<RowData | undefined>(
+    undefined,
+  );
   const [connectionOptions, setConnectionOptions] =
     useState<FhirConnectionOptions>(defaultFhirConnectionOptions());
 
-  const handleRowSelectClick = (rowData: any, selected: boolean) => {
+  const handleRowSelectClick = (rowData: RowData, selected: boolean) => {
     const d = selected ? rowData : undefined;
     setSelectedRow(d);
 
