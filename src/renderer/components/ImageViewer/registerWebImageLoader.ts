@@ -222,10 +222,8 @@ function loadImageIntoBuffer(
           (image) => {
             // eslint-disable-next-line promise/always-return
             if (
-              !options ||
-              !options.targetBuffer ||
-              !options.targetBuffer.length ||
-              !options.targetBuffer.offset
+              !options?.targetBuffer?.length ||
+              !options?.targetBuffer?.offset
             ) {
               resolve(image);
               return;

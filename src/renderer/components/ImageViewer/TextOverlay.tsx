@@ -34,8 +34,6 @@ const TextOverlay: FunctionComponent<ImagePreviewProps> = ({
   const [locale, setLocale] = useState<string>();
 
   useEffect(() => {
-    logger.info('First and only useEffect call');
-
     window.electron.ipcRenderer
       .getSettings()
       .then((settings: Settings) => {
@@ -48,7 +46,6 @@ const TextOverlay: FunctionComponent<ImagePreviewProps> = ({
   }, []);
 
   return (
-    // eslint-disable-next-line max-len
     <>
       <Box className="ImageViewer-top-left">
         <div>

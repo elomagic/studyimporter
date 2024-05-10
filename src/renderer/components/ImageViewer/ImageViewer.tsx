@@ -3,21 +3,22 @@ import logger from 'electron-log/renderer';
 import {
   Enums,
   imageLoader,
+  isCornerstoneInitialized,
   metaData,
+  RenderingEngine,
+  Types,
   volumeLoader,
 } from '@cornerstonejs/core';
 import * as cornerstone3D from '@cornerstonejs/core';
 import { Box } from '@mui/material';
-import {
-  IRenderingEngine,
-  IStackViewport,
-} from '@cornerstonejs/core/dist/types/types';
+import { utilities } from '@cornerstonejs/tools';
 import ToolsBar, { ButtonModes } from './ToolsBar';
 import { IMAGE_LOADER_SCHEMA } from './initImageLoader';
 import {
   DicomImageMeta,
   DicomSeriesMeta,
   DicomStudyMeta,
+  ImageId,
 } from '../../../shared/shared-types';
 import './ImageViewer.css';
 import registerWebImageLoader from './registerWebImageLoader';
@@ -26,11 +27,24 @@ import initViewer from './initViewer';
 import TextOverlay from './TextOverlay';
 
 // ======== Constants ======= //
-const renderingEngineId = 'myRenderingEngine';
-const viewportId = 'CT_STACK';
+const RENDERING_ENGINE_ID = 'myRenderingEngine';
+const VIEWPORT_ID = 'CT_STACK';
 const volumeId = 'myVolume';
 
-registerWebImageLoader(imageLoader);
+// Instances
+let renderingEngine: RenderingEngine;
+let viewport: Types.IStackViewport;
+
+async function initCornerstone() {
+  if (isCornerstoneInitialized()) {
+    return;
+  }
+
+  cornerstone3D.setUseCPURendering(true);
+  await cornerstone3D.init().then(() => {
+    return registerWebImageLoader(imageLoader);
+  });
+}
 
 /**
  * @description Basic working example of cornerstone3D with React using a stripped down version of the webLoader example linked below. Their initDemo function seemed to be the key to getting this working.
@@ -39,27 +53,109 @@ registerWebImageLoader(imageLoader);
  *
  * @link https://github.com/cornerstonejs/cornerstone3D/blob/main/packages/tools/examples/webWorker/index.ts
  */
-async function run(container: HTMLDivElement) {
+function initRenderingEngine(container: HTMLDivElement) {
   try {
-    cornerstone3D.setUseCPURendering(true);
-    // await cornerstone3D.init();
-
-    await initViewer();
-
-    const renderingEngine = new cornerstone3D.RenderingEngine(
-      renderingEngineId,
-    );
-
-    renderingEngine.setViewports([
-      {
-        element: container,
-        type: Enums.ViewportType.STACK,
-        viewportId,
+    renderingEngine = new RenderingEngine(RENDERING_ENGINE_ID);
+    renderingEngine.enableElement({
+      viewportId: VIEWPORT_ID,
+      type: Enums.ViewportType.STACK,
+      element: container,
+      defaultOptions: {
+        background: [0.2, 0, 0.2],
       },
-    ]);
+    });
+    logger.info('RenderingEngine initialized.');
   } catch (error) {
     logger.error(error);
   }
+}
+
+async function initViewport(): Promise<void> {
+  if (!renderingEngine) {
+    logger.error('Rendering engine not yet initialized');
+  }
+
+  viewport = renderingEngine.getViewport(VIEWPORT_ID) as Types.IStackViewport;
+  logger.info('Viewport initialized.');
+}
+
+async function init(container: HTMLDivElement): Promise<void> {
+  return initViewer()
+    .then(() => {
+      logger.info('Initializing cornerstone...');
+      return initCornerstone();
+    })
+    .then(() => {
+      logger.info('Initializing rendering engine...');
+      return initRenderingEngine(container);
+    })
+    .then(() => {
+      logger.info('Initializing viewport...');
+      return initViewport();
+    })
+    .then((a) => {
+      logger.info('Viewer initialized.');
+      return a;
+    });
+}
+
+async function setStack(
+  dicomImageMetas: DicomImageMeta[],
+  dicomSerie: DicomSeriesMeta | undefined,
+): Promise<DicomImageMeta[]> {
+  if (dicomImageMetas.length === 0 || dicomSerie === undefined) {
+    return [];
+  }
+
+  if (!renderingEngine) {
+    logger.error('Engine not initialized. Unable to set stack with image ids');
+    return [];
+  }
+
+  const i: DicomImageMeta[] =
+    dicomImageMetas.slice().sort((a, b) => {
+      return a.instanceNumber - b.instanceNumber;
+    }) ?? [];
+
+  const imageIds: ImageId[] =
+    i.slice().map((dicomFileInstance) => {
+      return `${IMAGE_LOADER_SCHEMA}://?seriesInstanceUid=${dicomFileInstance.seriesInstanceUID}&modality=${dicomSerie?.modality}&file=${dicomFileInstance.dicomFileURL}&instanceNumber=${dicomFileInstance.instanceNumber}`;
+    }) ?? [];
+
+  metaData.removeAllProviders();
+  metaData.addProvider(
+    (type: string, imageId: string) =>
+      hardcodedMetaDataProvider(type, imageId, imageIds),
+    10000,
+  );
+
+  const index = Math.floor(imageIds.length / 2);
+
+  logger.info(`Index: ${index},Stack=${imageIds}`);
+
+  return volumeLoader
+    .createAndCacheVolume(volumeId, {
+      imageIds,
+    })
+    .then((volume) => {
+      logger.debug(`Count of image ids to set: ${imageIds.length}`);
+      volume.load();
+      return viewport.setStack(imageIds);
+    })
+    .then(() => {
+      // Reset index
+      return viewport.setImageIdIndex(0);
+    })
+    .then(() => {
+      // Set the VOI of the stack
+      // TODO viewport.setProperties({ voiRange: ctVoiRange });
+
+      utilities.stackContextPrefetch.enable(viewport.element);
+
+      viewport.render();
+      logger.info('Stack successfully set.');
+      return i;
+    });
 }
 
 type ImagePreviewProps = {
@@ -79,37 +175,19 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
   const containerRef: React.MutableRefObject<HTMLDivElement | undefined> =
     useRef();
   // const [dicomImages, setDicomImages] = useState<DicomImageMeta[]>([]);
+  const [images, setImages] = useState<DicomImageMeta[]>([]);
   const [image, setImage] = useState<DicomImageMeta | undefined>();
-
-  const getViewport: () => IStackViewport | undefined = () => {
-    const engine = cornerstone3D.getRenderingEngine(renderingEngineId);
-    if (engine === undefined) {
-      logger.error('Rendering engine not initialized');
-      return undefined;
-    }
-
-    const vp = engine.getViewport(viewportId) as IStackViewport;
-    if (vp === undefined) {
-      logger.error('Viewport not yet initialized');
-    }
-
-    return vp;
-  };
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
   function setImageIndex(index: number) {
-    const viewport = getViewport();
-    if (viewport === undefined) {
-      logger.error('Viewport not yet initialized');
-      return;
-    }
-
     viewport
       .setImageIdIndex(index)
-      .then(() => {
+      .then((imageId: ImageId) => {
         viewport.render();
-        setImage(dicomSerie?.images[index]);
+        setImage(images[index]);
+        setCurrentImageIndex(index);
         logger.info(`New current index: ${viewport.getCurrentImageIdIndex()}`);
-        return index;
+        return imageId;
       })
       .catch((err) => {
         logger.error(err);
@@ -120,110 +198,44 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
     function handleResize() {
       logger.log('resized to: ', window.innerWidth, 'x', window.innerHeight);
 
-      cornerstone3D.getRenderingEngine(renderingEngineId)?.resize(true);
+      renderingEngine.resize(true);
     }
 
     window.addEventListener('resize', handleResize);
   });
-
-  async function setStack(imageIds: string[]) {
-    const renderingEngine: IRenderingEngine | undefined =
-      cornerstone3D.getRenderingEngine(renderingEngineId);
-
-    if (!renderingEngine) {
-      logger.error('Engine not initialized');
-      return;
-    }
-
-    const index = Math.floor(imageIds.length / 2);
-
-    logger.info(`Index: ${index},Stack=${imageIds}`);
-
-    const viewport = renderingEngine.getStackViewports()[0];
-
-    const volume = await volumeLoader.createAndCacheVolume(volumeId, {
-      imageIds,
-    });
-
-    volume.load();
-
-    await viewport.setStack(imageIds);
-
-    await viewport.setImageIdIndex(0);
-
-    renderingEngine.render();
-  }
 
   useEffect(() => {
     logger.info('First and only useEffect call');
 
     const container = containerRef.current;
 
-    if (!container) return;
+    if (!container) {
+      logger.error('Container element not yet created.');
+      return;
+    }
 
-    run(container)
-      .then((a) => {
-        logger.info('Element container initialized.');
-        return a;
+    container.oncontextmenu = (e) => e.preventDefault();
+
+    init(container).catch((err) => {
+      logger.error(err);
+    });
+  }, []);
+
+  useEffect(() => {
+    setStack(dicomSerie?.images ?? [], dicomSerie)
+      .then((i) => {
+        setImages(i);
+        setImage(i[0]);
+        setCurrentImageIndex(0);
+        return i;
       })
       .catch((err) => {
         logger.error(err);
       });
-  }, []);
-
-  useEffect(() => {
-    function handleResize() {
-      logger.log('resized to: ', window.innerWidth, 'x', window.innerHeight);
-
-      cornerstone3D.getRenderingEngine(renderingEngineId)?.resize(true);
-    }
-
-    window.addEventListener('resize', handleResize);
-  });
-
-  useEffect(() => {
-    const viewport = getViewport();
-    if (viewport === undefined) {
-      return;
-    }
-
-    const imageIds = dicomSerie?.images
-      .slice()
-      .sort((a, b) => {
-        return a.instanceNumber - b.instanceNumber;
-      })
-      .map((dicomFileInstance) => {
-        return `${IMAGE_LOADER_SCHEMA}://?seriesInstanceUid=${dicomFileInstance.seriesInstanceUID}&modality=${dicomSerie?.modality}&file=${dicomFileInstance.dicomFileURL}`;
-      });
-
-    metaData.removeAllProviders();
-
-    if (imageIds !== undefined && imageIds.length !== 0) {
-      metaData.addProvider(
-        (type: string, imageId: string) =>
-          hardcodedMetaDataProvider(type, imageId, imageIds),
-        10000,
-      );
-
-      setStack(imageIds)
-        .then((a) => {
-          logger.info('Stack successfully set.');
-          return a;
-        })
-        .catch((err) => {
-          logger.error(err);
-        });
-    }
   }, [dicomSerie]);
 
   const handleToolButtonClick = (mode: ButtonModes) => {
     logger.info(mode);
-
-    const viewport = getViewport();
-    if (viewport === undefined) {
-      logger.info('Viewport not yet initialized');
-      return;
-    }
 
     const { invert } = viewport.getProperties();
 
@@ -280,8 +292,8 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
               display: 'flex',
               flexDirection: 'column',
               flexGrow: 1,
-              height: '500px',
-              width: '500px',
+              height: '512px',
+              width: '512px',
             }}
             ref={containerRef}
             id="cornerstone-element"
@@ -296,11 +308,8 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         />
       </Box>
       <ToolsBar
-        previousDisabled={getViewport()?.getCurrentImageIdIndex() === 0}
-        nextDisabled={
-          (getViewport()?.getImageIds.length ?? 0) <
-          (getViewport()?.getCurrentImageIdIndex() ?? 0) + 1
-        }
+        previousDisabled={currentImageIndex === 0}
+        nextDisabled={images.length <= currentImageIndex + 1}
         onChange={handleToolButtonClick}
       />
     </Box>
