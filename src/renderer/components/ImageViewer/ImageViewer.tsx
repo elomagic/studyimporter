@@ -12,6 +12,7 @@ import {
 import * as cornerstone3D from '@cornerstonejs/core';
 import { Box } from '@mui/material';
 import { utilities } from '@cornerstonejs/tools';
+import { nanoid } from '@reduxjs/toolkit';
 import ToolsBar, { ButtonModes } from './ToolsBar';
 import { IMAGE_LOADER_SCHEMA } from './initImageLoader';
 import {
@@ -28,8 +29,8 @@ import TextOverlay from './TextOverlay';
 
 // ======== Constants ======= //
 const RENDERING_ENGINE_ID = 'myRenderingEngine';
-const VIEWPORT_ID = 'CT_STACK';
-const volumeId = 'myVolume';
+const VIEWPORT_ID = `myViewport-${nanoid()}`;
+const VOLUME_ID = 'myVolume';
 
 // Instances
 let renderingEngine: RenderingEngine;
@@ -134,7 +135,7 @@ async function setStack(
   logger.info(`Index: ${index},Stack=${imageIds}`);
 
   return volumeLoader
-    .createAndCacheVolume(volumeId, {
+    .createAndCacheVolume(VOLUME_ID, {
       imageIds,
     })
     .then((volume) => {
@@ -205,8 +206,6 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
   });
 
   useEffect(() => {
-    logger.info('First and only useEffect call');
-
     const container = containerRef.current;
 
     if (!container) {
@@ -216,13 +215,10 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
 
     container.oncontextmenu = (e) => e.preventDefault();
 
-    init(container).catch((err) => {
-      logger.error(err);
-    });
-  }, []);
-
-  useEffect(() => {
-    setStack(dicomSerie?.images ?? [], dicomSerie)
+    init(container)
+      .then(() => {
+        return setStack(dicomSerie?.images ?? [], dicomSerie);
+      })
       .then((i) => {
         setImages(i);
         setImage(i[0]);
