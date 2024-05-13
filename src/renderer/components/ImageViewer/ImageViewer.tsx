@@ -31,7 +31,7 @@ const {
   ToolGroupManager,
   Enums: csToolsEnums,
 } = cornerstoneTools;
-const { IMAGE_RENDERED  } = cornerstone3D.Enums.Events;
+const { IMAGE_RENDERED } = cornerstone3D.Enums.Events;
 
 const { MouseBindings } = csToolsEnums;
 
