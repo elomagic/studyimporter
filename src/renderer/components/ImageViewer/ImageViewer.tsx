@@ -2,7 +2,6 @@ import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import logger from 'electron-log/renderer';
 import {
   Enums,
-  imageLoader,
   isCornerstoneInitialized,
   metaData,
   RenderingEngine,
@@ -19,10 +18,8 @@ import {
   DicomImageMeta,
   DicomSeriesMeta,
   DicomStudyMeta,
-  ImageId,
 } from '../../../shared/shared-types';
 import './ImageViewer.css';
-import registerWebImageLoader from './registerWebImageLoader';
 import hardcodedMetaDataProvider from './hardcodedMetaDataProvider';
 import initViewer from './initViewer';
 import TextOverlay from './TextOverlay';
@@ -42,9 +39,7 @@ async function initCornerstone() {
   }
 
   cornerstone3D.setUseCPURendering(true);
-  await cornerstone3D.init().then(() => {
-    return registerWebImageLoader(imageLoader);
-  });
+  await cornerstone3D.init();
 }
 
 /**
@@ -118,7 +113,7 @@ async function setStack(
       return a.instanceNumber - b.instanceNumber;
     }) ?? [];
 
-  const imageIds: ImageId[] =
+  const imageIds: string[] =
     i.slice().map((dicomFileInstance) => {
       return `${IMAGE_LOADER_SCHEMA}://?seriesInstanceUid=${dicomFileInstance.seriesInstanceUID}&modality=${dicomSerie?.modality}&file=${dicomFileInstance.dicomFileURL}&instanceNumber=${dicomFileInstance.instanceNumber}`;
     }) ?? [];
@@ -183,7 +178,7 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
   function setImageIndex(index: number) {
     viewport
       .setImageIdIndex(index)
-      .then((imageId: ImageId) => {
+      .then((imageId: string) => {
         viewport.render();
         setImage(images[index]);
         setCurrentImageIndex(index);

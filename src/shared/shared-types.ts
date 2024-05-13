@@ -5,10 +5,6 @@
  */
 import { PathLike } from 'node:fs';
 
-export type ImageId = string;
-export type SeriesInstanceUID = string;
-export type StudyInstanceUID = string;
-
 export enum WorklistQueryDateRange {
   Yesterday = 'Yesterday',
   Today = 'Today',
@@ -102,7 +98,7 @@ export type DicomPatientMeta = {
 };
 
 export type DicomSeriesMeta = {
-  seriesInstanceUID: SeriesInstanceUID;
+  seriesInstanceUID: string;
   seriesDescription: string;
   modality: string;
   institutionName?: string;
@@ -115,7 +111,7 @@ export type DicomSeriesMeta = {
 };
 
 export type DicomStudyMeta = {
-  studyInstanceUID: StudyInstanceUID;
+  studyInstanceUID: string;
   studyDescription: string;
   performedDate: string;
   performedTime: string;
@@ -134,7 +130,7 @@ export type DicomImageMeta = {
   /**
    * Parent series instance UID.
    */
-  seriesInstanceUID: SeriesInstanceUID;
+  seriesInstanceUID: string;
   manufacturer?: string;
   manufacturerModelName?: string;
   /**
@@ -154,7 +150,7 @@ export type DicomImageMeta = {
    */
   refFileId?: string;
   patient?: DicomPatientMeta;
-  studyInstanceUID?: StudyInstanceUID;
+  studyInstanceUID?: string;
 };
 
 export const defaultLocalAet = 'STUDYIMP';
