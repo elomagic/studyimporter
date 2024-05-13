@@ -1,14 +1,7 @@
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import logger from 'electron-log/renderer';
-import {
-  Enums,
-  isCornerstoneInitialized,
-  metaData,
-  RenderingEngine,
-  Types,
-  volumeLoader,
-} from '@cornerstonejs/core';
 import * as cornerstone3D from '@cornerstonejs/core';
+import * as cornerstoneTools from '@cornerstonejs/tools';
 import { Box } from '@mui/material';
 import { utilities } from '@cornerstonejs/tools';
 import { nanoid } from '@reduxjs/toolkit';
@@ -25,16 +18,29 @@ import initViewer from './initViewer';
 import TextOverlay from './TextOverlay';
 
 // ======== Constants ======= //
-const RENDERING_ENGINE_ID = 'myRenderingEngine';
+const RENDERING_ENGINE_ID = `myRenderingEngine`;
 const VIEWPORT_ID = `myViewport-${nanoid()}`;
 const VOLUME_ID = 'myVolume';
+const TOOL_GROUP_ID = 'myToolGroupId';
+
+const {
+  PanTool,
+  WindowLevelTool,
+  StackScrollMouseWheelTool,
+  ZoomTool,
+  ToolGroupManager,
+  Enums: csToolsEnums,
+} = cornerstoneTools;
+
+const { MouseBindings } = csToolsEnums;
 
 // Instances
-let renderingEngine: RenderingEngine;
-let viewport: Types.IStackViewport;
+let renderingEngine: cornerstone3D.RenderingEngine;
+let viewport: cornerstone3D.Types.IStackViewport;
+let toolGroup: cornerstoneTools.Types.IToolGroup;
 
 async function initCornerstone() {
-  if (isCornerstoneInitialized()) {
+  if (cornerstone3D.isCornerstoneInitialized()) {
     logger.info('Cornerstone already initialize...');
     return;
   }
@@ -55,10 +61,10 @@ async function initCornerstone() {
 function initRenderingEngine(container: HTMLDivElement) {
   logger.info('Initializing rendering engine...');
   try {
-    renderingEngine = new RenderingEngine(RENDERING_ENGINE_ID);
+    renderingEngine = new cornerstone3D.RenderingEngine(RENDERING_ENGINE_ID);
     renderingEngine.enableElement({
       viewportId: VIEWPORT_ID,
-      type: Enums.ViewportType.STACK,
+      type: cornerstone3D.Enums.ViewportType.STACK,
       element: container,
       defaultOptions: {
         background: [0.2, 0, 0.2],
@@ -78,14 +84,76 @@ async function initViewport(): Promise<void> {
     );
   }
 
-  viewport = renderingEngine.getViewport(VIEWPORT_ID) as Types.IStackViewport;
+  viewport = renderingEngine.getViewport(
+    VIEWPORT_ID,
+  ) as cornerstone3D.Types.IStackViewport;
+
+  // Set the tool group on the viewport
+  toolGroup.addViewport(VIEWPORT_ID, RENDERING_ENGINE_ID);
+
   logger.info('Viewport initialized.');
+}
+
+async function initCornerstoneTools(): Promise<void> {
+  logger.info('Initializing cornerstone tools...');
+
+  const tempToolGroup = ToolGroupManager.createToolGroup(TOOL_GROUP_ID);
+  if (tempToolGroup === undefined) {
+    logger.info('Cornerstone tools already initialized...');
+    return;
+  }
+
+  toolGroup = tempToolGroup;
+
+  // Add tools to Cornerstone3D
+  cornerstoneTools.addTool(WindowLevelTool);
+  cornerstoneTools.addTool(PanTool);
+  cornerstoneTools.addTool(ZoomTool);
+  cornerstoneTools.addTool(StackScrollMouseWheelTool);
+
+  // Add tools to the tool group
+  toolGroup.addTool(WindowLevelTool.toolName);
+  toolGroup.addTool(PanTool.toolName);
+  toolGroup.addTool(ZoomTool.toolName);
+  toolGroup.addTool(StackScrollMouseWheelTool.toolName, { loop: false });
+
+  // Set the initial state of the tools, here all tools are active and bound to
+  // Different mouse inputs
+  toolGroup.setToolActive(WindowLevelTool.toolName, {
+    bindings: [
+      {
+        mouseButton: MouseBindings.Primary, // Left Click
+      },
+    ],
+  });
+  toolGroup.setToolActive(PanTool.toolName, {
+    bindings: [
+      {
+        mouseButton: MouseBindings.Auxiliary, // Middle Click
+      },
+    ],
+  });
+  toolGroup.setToolActive(ZoomTool.toolName, {
+    bindings: [
+      {
+        mouseButton: MouseBindings.Secondary, // Right Click
+      },
+    ],
+  });
+  // As the Stack Scroll mouse wheel is a tool using the `mouseWheelCallback`
+  // hook instead of mouse buttons, it does not need to assign any mouse button.
+  toolGroup.setToolActive(StackScrollMouseWheelTool.toolName);
+
+  logger.info('Cornerstone tools initialized.');
 }
 
 async function init(container: HTMLDivElement): Promise<void> {
   return initViewer()
     .then(() => {
       return initCornerstone();
+    })
+    .then(() => {
+      return initCornerstoneTools();
     })
     .then(() => {
       return initRenderingEngine(container);
@@ -122,8 +190,8 @@ async function setStack(
       return `${IMAGE_LOADER_SCHEMA}://?seriesInstanceUid=${dicomFileInstance.seriesInstanceUID}&modality=${dicomSerie?.modality}&file=${dicomFileInstance.dicomFileURL}&instanceNumber=${dicomFileInstance.instanceNumber}`;
     }) ?? [];
 
-  metaData.removeAllProviders();
-  metaData.addProvider(
+  cornerstone3D.metaData.removeAllProviders();
+  cornerstone3D.metaData.addProvider(
     (type: string, imageId: string) =>
       hardcodedMetaDataProvider(type, imageId, imageIds),
     10000,
@@ -133,7 +201,7 @@ async function setStack(
 
   logger.info(`Index: ${index},Stack=${imageIds}`);
 
-  return volumeLoader
+  return cornerstone3D.volumeLoader
     .createAndCacheVolume(VOLUME_ID, {
       imageIds,
     })
