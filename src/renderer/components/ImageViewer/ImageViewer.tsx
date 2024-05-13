@@ -247,7 +247,6 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
   const [currentImage, setCurrentImage] = useState<
     DicomImageMeta | undefined
   >();
-  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
   function setImageIndex(index: number) {
     viewport
@@ -256,7 +255,6 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         viewport.render();
 
         setCurrentImage(images[index]);
-        setCurrentImageIndex(index);
         logger.info(`New current index: ${viewport.getCurrentImageIdIndex()}`);
         return imageId;
       })
@@ -293,7 +291,6 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         setImages(i);
 
         setCurrentImage(i.length === 0 ? undefined : i[0]);
-        setCurrentImageIndex(i.length === 0 ? -1 : 0);
         return i;
       })
       .catch((err) => {
@@ -307,12 +304,6 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
     const { invert } = viewport.getProperties();
 
     switch (mode) {
-      case ButtonModes.PreviousImage:
-        setImageIndex(viewport.getCurrentImageIdIndex() - 1);
-        break;
-      case ButtonModes.NextImage:
-        setImageIndex(viewport.getCurrentImageIdIndex() + 1);
-        break;
       case ButtonModes.FlipHorizontal:
         viewport.setCamera({
           flipHorizontal: !viewport.getCamera().flipHorizontal,
@@ -322,10 +313,6 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         viewport.setCamera({
           flipVertical: !viewport.getCamera().flipVertical,
         });
-        break;
-      case ButtonModes.ZoomImage:
-        break;
-      case ButtonModes.ScrollImages:
         break;
       case ButtonModes.Invert:
         viewport.setProperties({ invert: !invert });
@@ -374,11 +361,7 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
           study={study}
         />
       </Box>
-      <ToolsBar
-        previousDisabled={currentImageIndex === 0}
-        nextDisabled={images.length <= currentImageIndex + 1}
-        onChange={handleToolButtonClick}
-      />
+      <ToolsBar onChange={handleToolButtonClick} />
     </Box>
   );
 };

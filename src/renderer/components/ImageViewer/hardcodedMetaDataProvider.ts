@@ -6,7 +6,7 @@ export default function hardcodedMetaDataProvider(
   imageId: string,
   imageIds: any[],
 ): any {
-  logger.info(`hardcodedMetaDataProvider(type=${type}, imageId=${imageId})`);
+  logger.debug(`hardcodedMetaDataProvider(type=${type}, imageId=${imageId})`);
 
   if (type === 'imagePixelModule') {
     return {
