@@ -31,6 +31,7 @@ const {
   ToolGroupManager,
   Enums: csToolsEnums,
 } = cornerstoneTools;
+const { IMAGE_RENDERED  } = cornerstone3D.Enums.Events;
 
 const { MouseBindings } = csToolsEnums;
 
@@ -243,25 +244,10 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
   const containerRef: React.MutableRefObject<HTMLDivElement | undefined> =
     useRef();
   // const [dicomImages, setDicomImages] = useState<DicomImageMeta[]>([]);
-  const [images, setImages] = useState<DicomImageMeta[]>([]);
-  const [currentImage, setCurrentImage] = useState<
+  const [imageMetas, setImageMetas] = useState<DicomImageMeta[]>([]);
+  const [currentImageMeta, setCurrentImageMeta] = useState<
     DicomImageMeta | undefined
   >();
-
-  function setImageIndex(index: number) {
-    viewport
-      .setImageIdIndex(index)
-      .then((imageId: string) => {
-        viewport.render();
-
-        setCurrentImage(images[index]);
-        logger.info(`New current index: ${viewport.getCurrentImageIdIndex()}`);
-        return imageId;
-      })
-      .catch((err) => {
-        logger.error(err);
-      });
-  }
 
   useEffect(() => {
     function handleResize() {
@@ -282,15 +268,18 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
     }
 
     container.oncontextmenu = (e) => e.preventDefault();
+    container.addEventListener(IMAGE_RENDERED,() => {
+      setCurrentImageMeta(imageMetas[viewport.getCurrentImageIdIndex()]);
+    });
 
     init(container)
       .then(() => {
         return setStack(dicomSerie?.images ?? [], dicomSerie);
       })
       .then((i) => {
-        setImages(i);
+        setImageMetas(i);
 
-        setCurrentImage(i.length === 0 ? undefined : i[0]);
+        // setCurrentImageMeta(i.length === 0 ? undefined : i[0]);
         return i;
       })
       .catch((err) => {
@@ -356,7 +345,7 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         <TextOverlay
           bottomRight={bottomRight}
           center={center}
-          image={currentImage}
+          image={currentImageMeta}
           dicomSerie={dicomSerie}
           study={study}
         />
