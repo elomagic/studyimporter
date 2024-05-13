@@ -1,10 +1,11 @@
+/**
+ * @deprecated This file is not in use anymore
+ */
 import * as cornerstone from '@cornerstonejs/core';
 import logger from 'electron-log/renderer';
 
 const canvas = document.createElement('canvas');
 let lastImageIdDrawn: string;
-
-// Todo: this loader should exist in a separate package in the same monorepo
 
 /**
  * creates a cornerstone Image object for the specified Image and imageId
