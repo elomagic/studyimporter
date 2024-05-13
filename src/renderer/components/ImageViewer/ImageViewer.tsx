@@ -216,9 +216,6 @@ async function setStack(
       return viewport.setImageIdIndex(0);
     })
     .then(() => {
-      // Set the VOI of the stack
-      // TODO viewport.setProperties({ voiRange: ctVoiRange });
-
       utilities.stackContextPrefetch.enable(viewport.element);
 
       viewport.render();
@@ -244,7 +241,6 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
   const containerRef: React.MutableRefObject<HTMLDivElement | undefined> =
     useRef();
   // const [dicomImages, setDicomImages] = useState<DicomImageMeta[]>([]);
-  const [imageMetas, setImageMetas] = useState<DicomImageMeta[]>([]);
   const [currentImageMeta, setCurrentImageMeta] = useState<
     DicomImageMeta | undefined
   >();
@@ -268,19 +264,18 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
     }
 
     container.oncontextmenu = (e) => e.preventDefault();
-    container.addEventListener(IMAGE_RENDERED,() => {
-      setCurrentImageMeta(imageMetas[viewport.getCurrentImageIdIndex()]);
+    container.addEventListener(IMAGE_RENDERED, () => {
+      const index = dicomSerie?.images.findIndex((meta) => {
+        return meta.instanceNumber === viewport.getCurrentImageIdIndex();
+      });
+      setCurrentImageMeta(
+        index === undefined ? undefined : dicomSerie?.images[index],
+      );
     });
 
     init(container)
       .then(() => {
         return setStack(dicomSerie?.images ?? [], dicomSerie);
-      })
-      .then((i) => {
-        setImageMetas(i);
-
-        // setCurrentImageMeta(i.length === 0 ? undefined : i[0]);
-        return i;
       })
       .catch((err) => {
         logger.error(err);

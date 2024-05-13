@@ -61,7 +61,7 @@ const TextOverlay: FunctionComponent<ImagePreviewProps> = ({
           {dicomSerie?.patient?.patientGender}
         </div>
         <div>
-          {image?.instanceNumber}/{dicomSerie?.images.length}
+          {(image?.instanceNumber ?? 0) + 1}/{dicomSerie?.images.length}
         </div>
       </Box>
       <Box className="ImageViewer-top-right">
