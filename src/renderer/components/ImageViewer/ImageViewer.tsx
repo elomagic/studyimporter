@@ -35,8 +35,11 @@ let viewport: Types.IStackViewport;
 
 async function initCornerstone() {
   if (isCornerstoneInitialized()) {
+    logger.info('Cornerstone already initialize...');
     return;
   }
+
+  logger.info('Initializing cornerstone...');
 
   cornerstone3D.setUseCPURendering(true);
   await cornerstone3D.init();
@@ -50,6 +53,7 @@ async function initCornerstone() {
  * @link https://github.com/cornerstonejs/cornerstone3D/blob/main/packages/tools/examples/webWorker/index.ts
  */
 function initRenderingEngine(container: HTMLDivElement) {
+  logger.info('Initializing rendering engine...');
   try {
     renderingEngine = new RenderingEngine(RENDERING_ENGINE_ID);
     renderingEngine.enableElement({
@@ -67,8 +71,11 @@ function initRenderingEngine(container: HTMLDivElement) {
 }
 
 async function initViewport(): Promise<void> {
+  logger.info('Initializing viewport...');
   if (!renderingEngine) {
-    logger.error('Rendering engine not yet initialized');
+    logger.error(
+      'Rendering engine not yet initialized. Skipping init viewport',
+    );
   }
 
   viewport = renderingEngine.getViewport(VIEWPORT_ID) as Types.IStackViewport;
@@ -78,19 +85,16 @@ async function initViewport(): Promise<void> {
 async function init(container: HTMLDivElement): Promise<void> {
   return initViewer()
     .then(() => {
-      logger.info('Initializing cornerstone...');
       return initCornerstone();
     })
     .then(() => {
-      logger.info('Initializing rendering engine...');
       return initRenderingEngine(container);
     })
     .then(() => {
-      logger.info('Initializing viewport...');
       return initViewport();
     })
     .then((a) => {
-      logger.info('Viewer initialized.');
+      logger.info('ImageViewer initialized.');
       return a;
     });
 }
@@ -172,7 +176,9 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
     useRef();
   // const [dicomImages, setDicomImages] = useState<DicomImageMeta[]>([]);
   const [images, setImages] = useState<DicomImageMeta[]>([]);
-  const [image, setImage] = useState<DicomImageMeta | undefined>();
+  const [currentImage, setCurrentImage] = useState<
+    DicomImageMeta | undefined
+  >();
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
   function setImageIndex(index: number) {
@@ -180,7 +186,8 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
       .setImageIdIndex(index)
       .then((imageId: string) => {
         viewport.render();
-        setImage(images[index]);
+
+        setCurrentImage(images[index]);
         setCurrentImageIndex(index);
         logger.info(`New current index: ${viewport.getCurrentImageIdIndex()}`);
         return imageId;
@@ -216,8 +223,9 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
       })
       .then((i) => {
         setImages(i);
-        setImage(i[0]);
-        setCurrentImageIndex(0);
+
+        setCurrentImage(i.length === 0 ? undefined : i[0]);
+        setCurrentImageIndex(i.length === 0 ? -1 : 0);
         return i;
       })
       .catch((err) => {
@@ -293,7 +301,7 @@ const ImageViewer: FunctionComponent<ImagePreviewProps> = ({
         <TextOverlay
           bottomRight={bottomRight}
           center={center}
-          image={image}
+          image={currentImage}
           dicomSerie={dicomSerie}
           study={study}
         />
