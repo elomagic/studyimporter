@@ -16,6 +16,7 @@ import './ImageViewer.css';
 import hardcodedMetaDataProvider from './hardcodedMetaDataProvider';
 import initViewer from './initViewer';
 import TextOverlay from './TextOverlay';
+import { ctVoiRange } from './customVoiRange';
 
 // ======== Constants ======= //
 const RENDERING_ENGINE_ID = `myRenderingEngine`;
@@ -212,6 +213,7 @@ async function setStack(
       return viewport.setStack(imageIds);
     })
     .then(() => {
+      // viewport.setProperties({ voiRange: ctVoiRange });
       // Reset index
       return viewport.setImageIdIndex(0);
     })
