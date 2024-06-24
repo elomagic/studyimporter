@@ -23,7 +23,8 @@
       "groupName": "@cornerstonejs",
       "matchDepTypes": [
         "build"
-      ]
+      ],
+      "enabled": false
     }
   ]
 }

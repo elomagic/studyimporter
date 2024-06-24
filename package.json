@@ -85,9 +85,9 @@
     }
   },
   "dependencies": {
-    "@cornerstonejs/core": "^1.70.5",
-    "@cornerstonejs/streaming-image-volume-loader": "^1.70.5",
-    "@cornerstonejs/tools": "^1.70.5",
+    "@cornerstonejs/core": "^1.77.13",
+    "@cornerstonejs/streaming-image-volume-loader": "^1.77.13",
+    "@cornerstonejs/tools": "^1.77.13",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.14",
