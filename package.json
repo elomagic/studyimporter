@@ -82,7 +82,11 @@
     ],
     "transform": {
       "\\.(ts|tsx|js|jsx)$": "ts-jest"
-    }
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(@cornerstonejs|@kitware))"
+    ],
+    "verbose": true
   },
   "dependencies": {
     "@cornerstonejs/core": "^1.77.13",
