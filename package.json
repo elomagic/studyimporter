@@ -90,7 +90,7 @@
     "@cornerstonejs/tools": "^1.77.13",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@mui/material": "^5.15.14",
+    "@mui/material": "^6.0.0",
     "@reduxjs/toolkit": "^2.2.3",
     "@wojtekmaj/react-hooks": "^1.18.0",
     "@xmldom/xmldom": "^0.8.10",
